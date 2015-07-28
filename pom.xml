@@ -19,6 +19,12 @@
     	<artifactId>freemarker</artifactId>
     	<version>2.3.20</version>
     </dependency>
+
+    <dependency>
+    	<groupId>com.mawujun</groupId>
+    	<artifactId>leon-utils-new</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>leon-generator</finalName>

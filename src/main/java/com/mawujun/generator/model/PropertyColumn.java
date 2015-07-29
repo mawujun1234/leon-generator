@@ -1,4 +1,4 @@
-package com.mawujun.generator;
+package com.mawujun.generator.model;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

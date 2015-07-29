@@ -1,16 +1,14 @@
-package com.mawujun.generator;
+package com.mawujun.generator.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SubjectRoot {
 	//private String dbName;
 	private String tableName;//表名
 	private String simpleClassName;//类名，不带报名的
 	private String basepackage;//包名
-	//private String idType;
+	private String idType;
 	//private String idColumnName;
 	//private String idPropertyName;
 	//private String idGeneratorStrategy="";
@@ -54,6 +52,14 @@ public class SubjectRoot {
 
 	public void setPropertyColumns(List<PropertyColumn> propertyColumns) {
 		this.propertyColumns = propertyColumns;
+	}
+
+	public String getIdType() {
+		return idType;
+	}
+
+	public void setIdType(String idType) {
+		this.idType = idType;
 	}
 
 }

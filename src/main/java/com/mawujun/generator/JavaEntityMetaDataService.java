@@ -2,8 +2,12 @@ package com.mawujun.generator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.mawujun.generator.model.PropertyColumn;
+import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.DefaultNamingStrategy;
 import com.mawujun.generator.other.NamingStrategy;
 import com.mawujun.utils.ReflectUtils;
@@ -17,11 +21,22 @@ public class JavaEntityMetaDataService {
 
 	NamingStrategy namingStrategy=new DefaultNamingStrategy();
 	
-	public SubjectRoot initPropertyColumn(Class clazz){
+	private static Map<String,SubjectRoot> cache=new HashMap<String,SubjectRoot>();
+	public SubjectRoot getClassProperty(Class clazz){
+		if(cache.containsKey(clazz.getName())){
+			return cache.get(clazz.getName());
+		}
+		return null;
+	}
+	public SubjectRoot initClassProperty(Class clazz,Class idClass){
+		if(cache.containsKey(clazz.getName())){
+			return cache.get(clazz.getName());
+		}
 		SubjectRoot root=new SubjectRoot();
 		root.setTableName(namingStrategy.classToTableName(clazz.getSimpleName().toLowerCase()));
 		root.setSimpleClassName(clazz.getSimpleName());
 		root.setBasepackage(clazz.getPackage().getName());
+		root.setIdType(idClass.getSimpleName());
 		
 		
 		Field[] fields=ReflectUtils.getAllDeclaredFields(clazz);
@@ -33,7 +48,7 @@ public class JavaEntityMetaDataService {
 			propertyColumn.setJavaType(field.getClass());
 			propertyColumns.add(propertyColumn);
 		}
-		
+		cache.put(clazz.getName(), root);
 		return root;
 	}
 }

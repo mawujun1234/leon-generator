@@ -2,7 +2,7 @@ package ${basepackage};
 
 import org.springframework.stereotype.Repository;
 
-import com.mawujun.repository1.IRepository;
+import com.mawujun.repository.IRepository;
 
 import ${basepackage}.${simpleClassName};
 <#include "/java_copyright.include"/>

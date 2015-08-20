@@ -23,7 +23,6 @@ Ext.define('Ems.${module}.${simpleClassName}Form',{
        var me = this;
        me.items= [
       <#list propertyColumns as propertyColumn>
-      <#if propertyColumn.isBaseType==true ||  propertyColumn.isIdProperty==true>
 		<#if propertyColumn.jsType=='date'>
 		{
             fieldLabel: '${propertyColumn.label!propertyColumn.property}',
@@ -51,50 +50,7 @@ Ext.define('Ems.${module}.${simpleClassName}Form',{
 	        allowBlank: false
 	    }<#if propertyColumn_has_next>,</#if>
 		</#if>
-	  <#elseif propertyColumn.isConstantType==true>
-		{
-	        xtype:'constantcombo',
-            fieldLabel:'${propertyColumn.label!propertyColumn.property}',
-            name: '${propertyColumn.property}',
-            readOnly:true,
-			code:'请补充完整'
-        }<#if propertyColumn_has_next>,</#if>
-	  <#elseif propertyColumn.isAssociationType==true>
-	  <#--if (propertyColumn.showModel!"")=='combobox'-->
-	   {
-	  		fieldLabel: '${propertyColumn.label!propertyColumn.column}',
-		    name: '${propertyColumn.column}',
-		    readOnly:true,
-		    xtype:'combobox',
-            typeAhead: true,
-            triggerAction: 'all',
-            queryMode: 'remote',
-		    displayField: 'name',
-		    valueField: 'id',
-            store: Ext.create('Ext.data.Store', {
-			    fields: ['id', 'name'], 
-				proxy:{
-				    type:'ajax',
-				    url:Ext.ContextPath+'${propertyColumn.property}/query',
-				    reader:{
-				    	type:'json',
-				    	totalProperty:'total',
-				    	root:'root'
-				    }
-				}
-			})
-        }<#if propertyColumn_has_next>,</#if>
-		<#else>
-		 {
-	        fieldLabel: '${propertyColumn.label!propertyColumn.property}',
-	        //afterLabelTextTpl: Ext.required,
-	        name: '${propertyColumn.property}',
-	        readOnly:true,
-	        xtype:'textfield',
-	        allowBlank: false
-	   	 }<#if propertyColumn_has_next>,</#if>
-		<#--if-->
-	  </#if>
+
 	  </#list>   
 	  ];   
 	  

@@ -5,7 +5,7 @@ package com.mawujun.generator.other;
  * @author mawujun email:16064988@qq.com qq:16064988
  *
  */
-public interface NamingStrategy {
+public interface NameStrategy {
 	/**
 	 * 把类名转换为表名
 	 * @author mawujun email:160649888@163.com qq:16064988

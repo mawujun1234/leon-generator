@@ -21,7 +21,6 @@ Ext.define('Ems.${module}.${simpleClassName}Grid',{
      <#-----------------------------------------生成列--------------------------------- ----->
       me.columns=[
       <#list propertyColumns as propertyColumn>	
-      <#if propertyColumn.isBaseType==true ||  propertyColumn.isIdProperty==true>
 		<#if propertyColumn.jsType=='date'>
 		{dataIndex:'${propertyColumn.property}',text:'${propertyColumn.label!propertyColumn.property}',xtype: 'datecolumn',   format:'Y-m-d'}<#if propertyColumn_has_next>,</#if>
 		<#elseif propertyColumn.jsType=='int' || propertyColumn.jsType=='float'>
@@ -29,16 +28,11 @@ Ext.define('Ems.${module}.${simpleClassName}Grid',{
 		<#else>
 		{dataIndex:'${propertyColumn.property}',text:'${propertyColumn.label!propertyColumn.property}'}<#if propertyColumn_has_next>,</#if>
 		</#if>
-	  <#elseif propertyColumn.isConstantType==true>
-	    {dataIndex:'${propertyColumn.property}',text:'${propertyColumn.label!propertyColumn.property}'}<#if propertyColumn_has_next>,</#if>
-	  <#else>
-		{dataIndex:'${propertyColumn.property}',text:'${propertyColumn.label!propertyColumn.property}'}<#if propertyColumn_has_next>,</#if>
-	  </#if>
 	  </#list>
       ];
       
       <#-----------------------------------------生成store--------------------------------- ----->
-      <#if extenConfig.userModel==true>
+      <#if extenConfig.extjs_userModel==true>
 	  me.store=Ext.create('Ext.data.Store',{
 			autoSync:false,
 			pageSize:50,
@@ -75,7 +69,7 @@ Ext.define('Ems.${module}.${simpleClassName}Grid',{
 	  }];
 	  
 	  <#-----------------------------------------生成工具栏--------------------------------- ----->
-	  <#if extenConfig.createDelUpd=true>
+	  <#if extenConfig.extjs_createDelUpd=true>
 	  me.tbar=	[{
 			text: '刷新',
 			itemId:'reload',

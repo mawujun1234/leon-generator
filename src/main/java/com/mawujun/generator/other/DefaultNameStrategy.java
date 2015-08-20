@@ -9,7 +9,7 @@ import com.mawujun.utils.string.StringUtils;
  * @author mawujun email:16064988@qq.com qq:16064988
  *
  */
-public class DefaultNamingStrategy implements NamingStrategy {
+public class DefaultNameStrategy implements NameStrategy {
 	public static  String columnPrefix = "";
 	public static  String tablePrefix = "t_";
 	public String classToTableName(String className) {
@@ -28,7 +28,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 	}
 
 	public static void setColumnPrefix(String columnPrefix) {
-		DefaultNamingStrategy.columnPrefix = columnPrefix;
+		DefaultNameStrategy.columnPrefix = columnPrefix;
 	}
 
 	public static String getTablePrefix() {
@@ -36,7 +36,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 	}
 
 	public static void setTablePrefix(String tablePrefix) {
-		DefaultNamingStrategy.tablePrefix = tablePrefix;
+		DefaultNameStrategy.tablePrefix = tablePrefix;
 	}
 
 }

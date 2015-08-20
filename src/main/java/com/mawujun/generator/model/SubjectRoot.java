@@ -3,6 +3,8 @@ package com.mawujun.generator.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mawujun.generator.ExtenConfig;
+
 public class SubjectRoot {
 	//private String dbName;
 	private String tableName;//表名
@@ -18,6 +20,8 @@ public class SubjectRoot {
 	//private String jsPackage;//用于用表生成的时候指定的
 	//private Map<Object,Object> extenConfig=new HashMap<Object,Object>();
 	//private Object extenConfig=new Object();
+	
+	private ExtenConfig extenConfig=new ExtenConfig();
 
 	List<PropertyColumn> propertyColumns=new ArrayList<PropertyColumn>();
 	//List<PropertyColumn> baseTypePropertyColumns=new ArrayList<PropertyColumn>();
@@ -60,6 +64,14 @@ public class SubjectRoot {
 
 	public void setIdType(String idType) {
 		this.idType = idType;
+	}
+
+	public ExtenConfig getExtenConfig() {
+		return extenConfig;
+	}
+
+	public void setExtenConfig(ExtenConfig extenConfig) {
+		this.extenConfig = extenConfig;
 	}
 
 }

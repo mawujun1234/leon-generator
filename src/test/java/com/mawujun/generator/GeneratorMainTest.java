@@ -15,20 +15,8 @@ public class GeneratorMainTest {
 	static GeneratorService generatorService=new GeneratorService();
 
 	public static void main(String[] args) throws TemplateException, IOException, ClassNotFoundException {	
-		//init();
+		generatorService.generatorAllFile(EntityTest.class);
 
-			
-		
-		//generatorService.generatorFile(OrgType.class,FtlFile.JsGridQuery.toString(),"D:",new ExtenConfig());	
-		
-		//String str="";
-		//str=generatorService.generatorToString(MenuItem.class,FtlFile.JsModel.toString(),null);	
-        //System.out.println(str);
-		
-		generatorService.generatorAllFile(EntityTest.class,String.class);
-		
-		
-		
 	}
 	
 

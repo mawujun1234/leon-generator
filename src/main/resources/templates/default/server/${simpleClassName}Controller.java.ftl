@@ -9,12 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.mawujun.utils.page.PageRequest;
-import com.mawujun.utils.page.QueryResult;
 import com.mawujun.controller.spring.mvc.json.JsonConfigHolder;
 import com.mawujun.repository.cnd.Cnd;
-import com.mawujun.utils.page.Page;
 import com.mawujun.utils.M;
+import com.mawujun.utils.page.PageParam;
+import com.mawujun.utils.page.PageResult;
 
 import ${basepackage}.${simpleClassName};
 import ${basepackage}.${simpleClassName}Service;
@@ -53,8 +52,8 @@ public class ${simpleClassName}Controller {
 	 */
 	@RequestMapping("/${simpleClassNameFirstLower}/query.do")
 	@ResponseBody
-	public Page query(Integer start,Integer limit,String sampleName){
-		Page page=Page.getInstance(start,limit);//.addParam(M.${simpleClassName}.sampleName, "%"+sampleName+"%");
+	public PageResult<${simpleClassName}> query(Integer start,Integer limit,String sampleName){
+		PageParam page=PageParam.getInstance(start,limit);//.addParam(M.${simpleClassName}.sampleName, "%"+sampleName+"%");
 		return ${simpleClassNameFirstLower}Service.queryPage(page);
 	}
 

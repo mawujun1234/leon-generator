@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -26,6 +26,7 @@ import javax.persistence.Table;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mawujun.utils.Assert;
 import com.mawujun.utils.file.FileUtils;
 
 /**
@@ -39,14 +40,21 @@ public class GeneratorMT {
 	private Class annotationClass=javax.persistence.Entity.class;
 	private Class annotationTable=javax.persistence.Table.class;
 	
+	private String targetPackage;
+	
 	/**
 	 * 搜索某个路径下面，标注了@Entity的类，并生成和android中的R类似的类，M
 	 * @author mawujun email:160649888@163.com qq:16064988
 	 * @param packageName 从哪些包中进行搜索
-	 * @param targetMDir 生成的目标地址 :E:\\eclipse\\workspace\\hujibang\\src\\main\\java\\com\\mawujun\\utils
+	 * @param targetMDir 生成的目标地址 :E:\\eclipse\\workspace\\hujibang\\src\\main\\java
+	 * @param targetPackage com.mawujun.utils
 	 * @throws IOException
 	 */
-	public void generateM(String packageName,String targetMDir) throws IOException{
+	public void generateM(String packageName,String targetMDir,String targetPackage) throws IOException{
+		Assert.notNull(packageName);
+		Assert.notNull(targetMDir);
+		Assert.notNull(targetPackage);
+		this.targetPackage=targetPackage;
 		generateM(getClasssFromPackage(packageName),targetMDir);
 	}
 	
@@ -157,7 +165,7 @@ public class GeneratorMT {
      */
     private void generateM(List<Class> entities,String targetMDir) throws IOException{
     	//生成M
-    	File file=new File(targetMDir+File.separatorChar+"M.java");
+    	File file=new File(targetMDir+File.separatorChar+this.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
@@ -166,7 +174,7 @@ public class GeneratorMT {
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package com.mawujun.utils;\n");
+    	fileWrite.append("package "+this.targetPackage+";\n");
     	fileWrite.append("public final class M {\n");
     	
     	
@@ -280,7 +288,7 @@ public class GeneratorMT {
      */
     public void generateT(List<Class> entities,String targetMDir) throws IOException{
     	//生成T
-    	File file=new File(targetMDir+File.separatorChar+"T.java");
+    	File file=new File(targetMDir+File.separatorChar+this.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
@@ -289,7 +297,7 @@ public class GeneratorMT {
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package com.mawujun.utils;\n");
+    	fileWrite.append("package "+this.targetPackage+";\n");
     	fileWrite.append("public final class T {\n");
     	
     	
@@ -397,7 +405,7 @@ public class GeneratorMT {
 	} 
     public boolean isBaseType(Class clz){
 		//如果是基本类型就返回true
-		if(clz == String.class || clz==Date.class || clz==java.sql.Date.class || clz==java.sql.Timestamp.class || clz.isPrimitive() || isWrapClass(clz)){
+		if(clz == UUID.class || clz == URL.class || clz == String.class || clz==Date.class || clz==java.sql.Date.class || clz==java.sql.Timestamp.class || clz.isPrimitive() || isWrapClass(clz)){
 			return true;
 		}
 		return false;

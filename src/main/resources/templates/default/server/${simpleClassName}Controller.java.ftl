@@ -2,7 +2,7 @@
 <#assign simpleClassNameFirstLower = simpleClassName?uncap_first> 
 package ${basepackage};
 import java.util.List;
-
+import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Controller;

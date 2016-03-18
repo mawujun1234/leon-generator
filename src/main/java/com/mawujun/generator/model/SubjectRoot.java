@@ -8,7 +8,9 @@ import com.mawujun.generator.ExtenConfig;
 public class SubjectRoot {
 	//private String dbName;
 	private String tableName;//表名
-	private String simpleClassName;//类名，不带报名的
+	private String simpleClassName;//类名，不带包名的
+	private String className;
+	
 	private String basepackage;//包名
 	private String idType;
 	//private String idColumnName;
@@ -25,6 +27,14 @@ public class SubjectRoot {
 
 	List<PropertyColumn> propertyColumns=new ArrayList<PropertyColumn>();
 	//List<PropertyColumn> baseTypePropertyColumns=new ArrayList<PropertyColumn>();
+
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
 
 	public String getTableName() {
 		return tableName;

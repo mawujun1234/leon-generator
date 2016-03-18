@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import com.mawujun.generator.model.PropertyColumn;
 import com.mawujun.generator.model.SubjectRoot;
-import com.mawujun.generator.other.DefaultNameStrategy;
 import com.mawujun.generator.other.NameStrategy;
 import com.mawujun.utils.ReflectUtils;
 import com.mawujun.utils.properties.PropertiesUtils;
@@ -65,8 +65,24 @@ public class JavaEntityMetaDataService {
 			return cache.get(clazz.getName());
 		}
 		SubjectRoot root=new SubjectRoot();
-		root.setTableName(nameStrategy.classToTableName(clazz.getSimpleName().toLowerCase()));
+		//ll
+		Table tableAnnotation=(Table)clazz.getAnnotation(Table.class);
+		if(tableAnnotation!=null){
+			root.setTableName(tableAnnotation.name());
+		} else {
+			Entity entityAnnotation=(Entity)clazz.getAnnotation(Entity.class);
+			if(entityAnnotation!=null){
+				root.setTableName(entityAnnotation.name());
+			} else {
+				throw new RuntimeException("没有在实体类上添加@Entity注解");
+			}
+		}
+		//root.setTableName(nameStrategy.classToTableName(clazz.getSimpleName().toLowerCase()));
+
+		
+		
 		root.setSimpleClassName(clazz.getSimpleName());
+		root.setClassName(clazz.getName());
 		root.setBasepackage(clazz.getPackage().getName());
 		root.setIdType("String");//默认是String
 		//root.setIdType(idClass.getSimpleName());

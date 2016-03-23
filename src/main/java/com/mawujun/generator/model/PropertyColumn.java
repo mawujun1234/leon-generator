@@ -10,8 +10,14 @@ import java.util.Map;
 
 public class PropertyColumn {
 	private String column;//列名
-	private String property;//属性名称
 	
+
+
+	private String property;//属性名称
+	private String property_label;//列的中文名，如果没有设置，就使用column
+	private Boolean hidden=false;//是否是隐藏字段
+	private Boolean nullable=true;//true表示可以为空
+
 	private String basepackage;//包名
 	private String javaType;
 	private String javaTypeClassName;//其实不用定义这个属性，其实是可以直接写get方法，下同
@@ -86,6 +92,9 @@ public class PropertyColumn {
 	public void setColumn(String column) {
 		this.column = column;
 	}
+	
+
+
 
 	public String getProperty() {
 		return property;
@@ -113,6 +122,30 @@ public class PropertyColumn {
 
 	public String getJsType() {
 		return jsType;
+	}
+
+	public String getHidden() {
+		return hidden.toString();
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	public String getProperty_label() {
+		return property_label;
+	}
+
+	public void setProperty_label(String property_label) {
+		this.property_label = property_label;
+	}
+
+	public String getNullable() {
+		return nullable.toString();
+	}
+
+	public void setNullable(Boolean nullable) {
+		this.nullable = nullable;
 	}
 
 

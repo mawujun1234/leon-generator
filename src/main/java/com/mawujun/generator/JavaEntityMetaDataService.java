@@ -7,10 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
+import com.mawujun.generator.model.FieldDefine;
 import com.mawujun.generator.model.PropertyColumn;
+import com.mawujun.generator.model.PropertyColumnComparator;
 import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.NameStrategy;
 import com.mawujun.utils.ReflectUtils;
@@ -93,6 +97,25 @@ public class JavaEntityMetaDataService {
 		for(Field field:fields){
 			PropertyColumn propertyColumn=new PropertyColumn();
 			propertyColumn.setProperty(field.getName());
+			FieldDefine fieldDefine=field.getAnnotation(FieldDefine.class);
+			if(fieldDefine!=null){
+				if(fieldDefine.title()==null || "".equals(fieldDefine.title())){
+					propertyColumn.setProperty_label(field.getName());
+				} else {
+					propertyColumn.setProperty_label(fieldDefine.title());
+				}
+				propertyColumn.setHidden(fieldDefine.hidden());
+			}
+			//不准为空的判断
+			Column column=field.getAnnotation(Column.class);
+			if(column!=null){
+				propertyColumn.setNullable(column.nullable());
+			}
+			NotNull notNull=field.getAnnotation(NotNull.class);
+			if(notNull!=null){
+				propertyColumn.setNullable(false);
+			}
+			
 			propertyColumn.setColumn(nameStrategy.propertyToColumnName(propertyColumn.getColumn()));
 			propertyColumn.setJavaType(field.getClass());
 			propertyColumns.add(propertyColumn);
@@ -103,8 +126,12 @@ public class JavaEntityMetaDataService {
 			}
 		}
 
+		
+		propertyColumns.sort(new PropertyColumnComparator());
 		root.setPropertyColumns(propertyColumns);
 		cache.put(clazz.getName(), root);
 		return root;
 	}
+	
+
 }

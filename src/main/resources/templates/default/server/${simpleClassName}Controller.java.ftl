@@ -26,7 +26,7 @@ public class ${simpleClassName}Controller {
 	@Resource
 	private ${simpleClassName}Service ${simpleClassNameFirstLower}Service;
 
-
+	<#if extenConfig.extjs_treeForm_model==true>
 	/**
 	 * 请按自己的需求修改
 	 * @author mawujun email:16064988@163.com qq:16064988
@@ -36,12 +36,13 @@ public class ${simpleClassName}Controller {
 	@RequestMapping("/${simpleClassNameFirstLower}/query.do")
 	@ResponseBody
 	public List<${simpleClassName}> query(String id) {
-		Cnd cnd=Cnd.select().andEquals(M.${simpleClassName}.parent.id, "root".equals(id)?null:id);
+		Cnd cnd=Cnd.select().andEquals(M.${simpleClassName}.id, "root".equals(id)?null:id);
 		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.query(cnd);
-		//JsonConfigHolder.setFilterPropertys(${simpleClassName}.class,M.${simpleClassName}.parent.name());
 		return ${simpleClassNameFirstLower}es;
 	}
+	</#if>
 
+	<#if extenConfig.extjs_treeForm_model==false>
 	/**
 	 * 这是基于分页的几种写法,的例子，请按自己的需求修改
 	 * @author mawujun email:16064988@163.com qq:16064988
@@ -56,10 +57,11 @@ public class ${simpleClassName}Controller {
 		PageParam page=PageParam.getInstance(start,limit);//.addParam(M.${simpleClassName}.sampleName, "%"+sampleName+"%");
 		return ${simpleClassNameFirstLower}Service.queryPage(page);
 	}
+	</#if>
 
-	@RequestMapping("/${simpleClassNameFirstLower}/query.do")
+	@RequestMapping("/${simpleClassNameFirstLower}/queryAll.do")
 	@ResponseBody
-	public List<${simpleClassName}> query() {	
+	public List<${simpleClassName}> queryAll() {	
 		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.queryAll();
 		return ${simpleClassNameFirstLower}es;
 	}
@@ -71,28 +73,28 @@ public class ${simpleClassName}Controller {
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/create.do")
-	@ResponseBody
+	//@ResponseBody
 	public ${simpleClassName} create(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.create(${simpleClassNameFirstLower});
 		return ${simpleClassNameFirstLower};
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/update.do")
-	@ResponseBody
+	//@ResponseBody
 	public  ${simpleClassName} update(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.update(${simpleClassNameFirstLower});
 		return ${simpleClassNameFirstLower};
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/deleteById.do")
-	@ResponseBody
+	//@ResponseBody
 	public ${idType} deleteById(${idType} id) {
 		${simpleClassNameFirstLower}Service.deleteById(id);
 		return id;
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/destroy.do")
-	@ResponseBody
+	//@ResponseBody
 	public ${simpleClassName} destroy(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.delete(${simpleClassNameFirstLower});
 		return ${simpleClassNameFirstLower};

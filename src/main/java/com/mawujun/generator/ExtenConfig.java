@@ -24,8 +24,14 @@ public class ExtenConfig {
 	 * 在生成的grid中是使用model中的proxy还是使用自己定义的proxy
 	 */
 	public boolean extjs_grid_store_userModel=true;
-	
+	/**
+	 * 是否创建增，删，改，查的按钮
+	 */
 	public boolean extjs_grid_createDelUpd_button=true;
+	/**
+	 * 是否增加 cellEditing,开启cellediting
+	 */
+	public boolean extjs_grid_enable_cellEditing=false;
 
 	public String getExtjs_packagePrefix() {
 		return extjs_packagePrefix;
@@ -65,6 +71,14 @@ public class ExtenConfig {
 
 	public void setExtjs_grid_createDelUpd_button(boolean extjs_grid_createDelUpd_button) {
 		this.extjs_grid_createDelUpd_button = extjs_grid_createDelUpd_button;
+	}
+
+	public boolean isExtjs_grid_enable_cellEditing() {
+		return extjs_grid_enable_cellEditing;
+	}
+
+	public void setExtjs_grid_enable_cellEditing(boolean extjs_grid_enable_cellEditing) {
+		this.extjs_grid_enable_cellEditing = extjs_grid_enable_cellEditing;
 	}
 
 

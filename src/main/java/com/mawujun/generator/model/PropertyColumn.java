@@ -15,8 +15,13 @@ public class PropertyColumn {
 
 	private String property;//属性名称
 	private String property_label;//列的中文名，如果没有设置，就使用column
-	private Boolean hidden=false;//是否是隐藏字段
+	public boolean hidden=false;//是否是隐藏字段
 	private Boolean nullable=true;//true表示可以为空
+	private Integer sort=0;//显示的顺序
+	
+	private Boolean isEnum=false;
+	private String showType="none";//显示的类型，是textfield，还是combobox，还是radio，还是
+	private Map<String,String> showType_values=new HashMap<String,String>();
 
 	private String basepackage;//包名
 	private String javaType;
@@ -84,6 +89,13 @@ public class PropertyColumn {
 		
 		//System.out.println(this.jsType);
 	}
+	
+	public void addShowType_value(String key,String value) {
+		if(this.showType_values==null) {
+			this.showType_values=new HashMap<String,String>();
+		}
+		this.showType_values.put(key, value);
+	}
 
 	public String getColumn() {
 		return column;
@@ -124,11 +136,14 @@ public class PropertyColumn {
 		return jsType;
 	}
 
-	public String getHidden() {
-		return hidden.toString();
+	public boolean getHidden() {
+		return hidden;
+	}
+	public Boolean getHidden_notrans() {
+		return hidden;
 	}
 
-	public void setHidden(Boolean hidden) {
+	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
 	}
 
@@ -146,6 +161,38 @@ public class PropertyColumn {
 
 	public void setNullable(Boolean nullable) {
 		this.nullable = nullable;
+	}
+
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+	public String getShowType() {
+		return showType;
+	}
+
+	public void setShowType(String showType) {
+		this.showType = showType;
+	}
+
+	public Map<String, String> getShowType_values() {
+		return showType_values;
+	}
+
+	public void setShowType_values(Map<String, String> showType_values) {
+		this.showType_values = showType_values;
+	}
+
+	public String getIsEnum() {
+		return isEnum.toString();
+	}
+
+	public void setIsEnum(Boolean isEnum) {
+		this.isEnum = isEnum;
 	}
 
 

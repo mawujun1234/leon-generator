@@ -2,6 +2,8 @@ package com.mawujun.generator;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import com.mawujun.generator.model.FieldDefine;
 import com.mawujun.generator.model.PropertyColumn;
 import com.mawujun.generator.model.PropertyColumnComparator;
+import com.mawujun.generator.model.ShowType;
 import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.NameStrategy;
 import com.mawujun.utils.ReflectUtils;
@@ -64,7 +67,7 @@ public class JavaEntityMetaDataService {
 		}
 		return null;
 	}
-	public SubjectRoot initClassProperty(Class clazz){
+	public SubjectRoot initClassProperty(Class clazz) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		if(cache.containsKey(clazz.getName())){
 			return cache.get(clazz.getName());
 		}
@@ -105,6 +108,23 @@ public class JavaEntityMetaDataService {
 					propertyColumn.setProperty_label(fieldDefine.title());
 				}
 				propertyColumn.setHidden(fieldDefine.hidden());
+				propertyColumn.setSort(fieldDefine.sort());
+				propertyColumn.setShowType(fieldDefine.showType().toString());
+				if(fieldDefine.showType()!=ShowType.none){
+					//如果是枚举类型，就反射获取枚举值，作为数据的内容，如果不是枚举类型，就弄成一个从后台获取内容的combobox
+					if(field.getType().isEnum()){
+						propertyColumn.setIsEnum(true);
+						//field.get
+						Class clz =field.getType();
+						Method toName = clz.getMethod("getName");
+						//Map<String,String> showTypeValues=new HashMap<String,String>();
+						for (Object obj : clz.getEnumConstants()) {
+							propertyColumn.addShowType_value(obj.toString(), toName.invoke(obj).toString());
+							//System.out.println(obj);
+							//System.out.println(toName.invoke(obj));
+						}
+					}
+				}
 			}
 			//不准为空的判断
 			Column column=field.getAnnotation(Column.class);
@@ -126,8 +146,10 @@ public class JavaEntityMetaDataService {
 			}
 		}
 
-		
+		//对属性显示的时候进行排序
 		propertyColumns.sort(new PropertyColumnComparator());
+		
+		
 		root.setPropertyColumns(propertyColumns);
 		cache.put(clazz.getName(), root);
 		return root;

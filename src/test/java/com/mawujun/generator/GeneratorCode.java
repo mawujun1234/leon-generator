@@ -1,12 +1,11 @@
 package com.mawujun.generator;
 
 import java.io.IOException;
-
-import com.mawujun.utils.properties.PropertiesUtils;
+import java.lang.reflect.InvocationTargetException;
 
 import freemarker.template.TemplateException;
 /**
- * 生成代码的主类，以ExtenConfig_�?头的类，是用来控制代码生成的，因为可能存在在不同的情况下，生成的代码会不�?样，有个性化的需求，但大部分�?样�??
+ * 生成代码的主类，以ExtenConfig_�?头的类，是用来控制代码生成的，因为可能存在在不同的情况下，生成的代码会不�?样，有个性化的需求，但大部分�?样�??
  * 如果大部分都不样的话，就自己重写ftl文件
  * @author mawujun email:16064988@163.com qq:16064988
  *
@@ -14,7 +13,18 @@ import freemarker.template.TemplateException;
 public class GeneratorCode {
 	static GeneratorService generatorService=new GeneratorService();
 
-	public static void main(String[] args) throws TemplateException, IOException, ClassNotFoundException {	
+	public static void main(String[] args) throws TemplateException, IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {	
+
+		// 这里弄成更加好用的方式，弄成级联的方式，例如getExtjsConfig.set。。。
+		ExtenConfig aa = new ExtenConfig();
+		aa.extjs_treeForm_model = true;
+		aa.extjs_packagePrefix = "y";
+		aa.extjs_form_layoutColumns = -1;
+
+		aa.extjs_grid_store_userModel = false;
+		aa.extjs_grid_createDelUpd_button = true;
+		generatorService.setExtenConfig(aa);
+
 		generatorService.generatorAllFile(EntityTest.class);
 
 	}
@@ -24,7 +34,7 @@ public class GeneratorCode {
 //		generateAllFile( clazz, dirPath);
 //	}
 //	/**
-//	 * 生成�?有FtlFile配置了的文件,
+//	 * 生成�?有FtlFile配置了的文件,
 //	 * 不建议生成放在正式开发的地方，因为会覆盖源文件，万一覆盖了修改过的，就悲剧了
 //	 * @author mawujun email:160649888@163.com qq:16064988
 //	 * @throws IOException 
@@ -39,7 +49,7 @@ public class GeneratorCode {
 //		for (FtlFile ftlFile : allFtlFile) {	
 //			generatorService.generatorFile(clazz,ftlFile.toString(),output);	
 //		}
-//		//打开文件�?
+//		//打开文件�?
 //		Runtime.getRuntime().exec("cmd.exe /c start "+output);
 //	}
 	
@@ -71,7 +81,7 @@ public class GeneratorCode {
 //		Service("${simpleClassName}Service.java.ftl"),
 //		Controller("${simpleClassName}Controller.java.ftl"),
 //		MybatisXml("${simpleClassName}Repository.xml.ftl"),
-//		//js的领域模�?
+//		//js的领域模�?
 //		JsModel("${simpleClassName}.js.ftl"),
 //		JsApp("${simpleClassName}App.js.ftl"),
 //		JspApp("${simpleClassName}App.jsp.ftl"),

@@ -6,6 +6,10 @@ package com.mawujun.generator;
  *
  */
 public class ExtenConfig {
+	/**
+	 * 生成的是tree+form的形式，否则的话就是grid+from的形式
+	 */
+	public boolean extjs_treeForm_model=false;
 	/***
 	 * 生成的extjs类的前缀名，Ext，Ems，y.等这些
 	 */
@@ -16,6 +20,12 @@ public class ExtenConfig {
 	 * columns的数值就是分几列
 	 */
 	public Integer extjs_form_layoutColumns=-1;
+	/**
+	 * 在生成的grid中是使用model中的proxy还是使用自己定义的proxy
+	 */
+	public boolean extjs_grid_store_userModel=true;
+	
+	public boolean extjs_grid_createDelUpd_button=true;
 
 	public String getExtjs_packagePrefix() {
 		return extjs_packagePrefix;
@@ -31,6 +41,30 @@ public class ExtenConfig {
 
 	public void setExtjs_form_layoutColumns(Integer extjs_form_layoutColumns) {
 		this.extjs_form_layoutColumns = extjs_form_layoutColumns;
+	}
+
+	public boolean getExtjs_treeForm_model() {
+		return extjs_treeForm_model;
+	}
+
+	public void setExtjs_treeForm_model(boolean extjs_treeForm_model) {
+		this.extjs_treeForm_model = extjs_treeForm_model;
+	}
+
+	public boolean getExtjs_grid_store_userModel() {
+		return extjs_grid_store_userModel;
+	}
+
+	public void setExtjs_grid_store_userModel(boolean extjs_grid_store_userModel) {
+		this.extjs_grid_store_userModel = extjs_grid_store_userModel;
+	}
+
+	public boolean isExtjs_grid_createDelUpd_button() {
+		return extjs_grid_createDelUpd_button;
+	}
+
+	public void setExtjs_grid_createDelUpd_button(boolean extjs_grid_createDelUpd_button) {
+		this.extjs_grid_createDelUpd_button = extjs_grid_createDelUpd_button;
 	}
 
 

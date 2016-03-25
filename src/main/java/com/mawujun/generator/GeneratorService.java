@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -236,8 +237,13 @@ public class GeneratorService {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws TemplateException
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
 	 */
-	public  void generatorAllFile(Class clazz) throws IOException, ClassNotFoundException, TemplateException {
+	public  void generatorAllFile(Class clazz) throws IOException, ClassNotFoundException, TemplateException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		initConfiguration();
 		/* 创建数据模型 */
 		SubjectRoot root =javaEntityMetaDataService.initClassProperty(clazz);
@@ -265,8 +271,13 @@ public class GeneratorService {
 	 * @throws TemplateException
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
 	 */
-	public  void generatorFile(Class clazz,FtlFileInfo ftlfile,String dirPath) throws TemplateException, IOException, ClassNotFoundException {
+	public  void generatorFile(Class clazz,FtlFileInfo ftlfile,String dirPath) throws TemplateException, IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		initConfiguration();
 		/* 创建数据模型 */
 		SubjectRoot root =javaEntityMetaDataService.initClassProperty(clazz);

@@ -5,15 +5,39 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME) 
 public @interface FieldDefine {
-	//�ֶ�����  
+	/**
+	 * 名称，标题，中文名，用于grid或者form
+	 * @return
+	 */
     String title();  
   
-    //˳���  ����Ҫ������
-    int number() default 0;  
+    /**
+     * 排序，生成的时候排序的，数字越大，放在越前面。
+     * 但是隐藏列还是放在最后，不受这个数字的影响
+     * @return
+     */
+    int sort() default 0;  
   
-    //�ֶα�ע  
+    /**
+     * 备注
+     * @return
+     */
     String remark() default "";  
       
-    //�Ƿ��������ֶ�  
+    /**
+     * 在界面显示的时候是不是隐藏列
+     * @return
+     */
     boolean hidden() default false;  
+    
+    /**
+     * 指定在界面上显示时，以什么类型显示,默认是根据字段类型进行决定的，当指定这个值的时候
+     * 才会按照指定的类型进行展示
+     * 如果是枚举类型，枚举必须要有 String getName()方法
+     * @author mawujun qq:16064988 mawujun1234@163.com
+     * @return
+     */
+    ShowType showType() default ShowType.none;
+    
+    
 }

@@ -18,6 +18,7 @@ public class PropertyColumn {
 	public boolean hidden=false;//是否是隐藏字段
 	private Boolean nullable=true;//true表示可以为空
 	private Integer sort=0;//显示的顺序
+	private boolean genQuery=false;//是否生成查询条件，主要是在grid
 	
 	private Boolean isEnum=false;
 	private String showType="none";//显示的类型，是textfield，还是combobox，还是radio，还是
@@ -193,6 +194,14 @@ public class PropertyColumn {
 
 	public void setIsEnum(Boolean isEnum) {
 		this.isEnum = isEnum;
+	}
+
+	public boolean getGenQuery() {
+		return genQuery;
+	}
+
+	public void setGenQuery(boolean genQuery) {
+		this.genQuery = genQuery;
 	}
 
 

@@ -39,5 +39,12 @@ public @interface FieldDefine {
      */
     ShowType showType() default ShowType.none;
     
+    /**
+     * 如果值为true，就表示要为这个字段生茶查询字段
+     * @author mawujun 16064988@qq.com 
+     * @return
+     */
+    boolean genQuery() default false; 
+    
     
 }

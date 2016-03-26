@@ -97,6 +97,8 @@ public class JavaEntityMetaDataService {
 		
 		Field[] fields=ReflectUtils.getAllDeclaredFields(clazz);
 		List<PropertyColumn> propertyColumns =new ArrayList<PropertyColumn>();
+		//存放需要产生查询条件的属性
+		List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
 		for(Field field:fields){
 			PropertyColumn propertyColumn=new PropertyColumn();
 			propertyColumn.setProperty(field.getName());
@@ -125,6 +127,7 @@ public class JavaEntityMetaDataService {
 						}
 					}
 				}
+				propertyColumn.setGenQuery(fieldDefine.genQuery());
 			}
 			//不准为空的判断
 			Column column=field.getAnnotation(Column.class);
@@ -137,12 +140,16 @@ public class JavaEntityMetaDataService {
 			}
 			
 			propertyColumn.setColumn(nameStrategy.propertyToColumnName(propertyColumn.getColumn()));
-			propertyColumn.setJavaType(field.getClass());
+			propertyColumn.setJavaType(field.getType());
 			propertyColumns.add(propertyColumn);
 			
 			//默认是使用id作为名称
 			if(id_name.equals(propertyColumn.getProperty())){
 				root.setIdType(field.getType().getSimpleName());
+			}
+			
+			if(propertyColumn.getGenQuery()){
+				queryProperties.add(propertyColumn);
 			}
 		}
 
@@ -151,6 +158,7 @@ public class JavaEntityMetaDataService {
 		
 		
 		root.setPropertyColumns(propertyColumns);
+		root.setQueryProperties(queryProperties);
 		cache.put(clazz.getName(), root);
 		return root;
 	}

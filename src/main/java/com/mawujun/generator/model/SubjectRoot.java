@@ -27,6 +27,8 @@ public class SubjectRoot {
 
 	List<PropertyColumn> propertyColumns=new ArrayList<PropertyColumn>();
 	//List<PropertyColumn> baseTypePropertyColumns=new ArrayList<PropertyColumn>();
+	//存放需要产生查询条件的属性
+	List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
 
 	public String getClassName() {
 		return className;
@@ -82,6 +84,14 @@ public class SubjectRoot {
 
 	public void setExtenConfig(ExtenConfig extenConfig) {
 		this.extenConfig = extenConfig;
+	}
+
+	public List<PropertyColumn> getQueryProperties() {
+		return queryProperties;
+	}
+
+	public void setQueryProperties(List<PropertyColumn> queryProperties) {
+		this.queryProperties = queryProperties;
 	}
 
 }

@@ -31,6 +31,7 @@ public @interface FieldDefine {
     boolean hidden() default false;  
     
     /**
+     * 如果hidden=true，这里无论设置成什么，在form中都只会显示为textfield
      * 指定在界面上显示时，以什么类型显示,默认是根据字段类型进行决定的，当指定这个值的时候
      * 才会按照指定的类型进行展示
      * 如果是枚举类型，枚举必须要有 String getName()方法

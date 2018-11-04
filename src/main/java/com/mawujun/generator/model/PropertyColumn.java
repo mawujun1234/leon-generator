@@ -10,19 +10,27 @@ import java.util.Map;
 
 public class PropertyColumn {
 	private String column;//列名
-	
-
-
 	private String property;//属性名称
-	private String property_label;//列的中文名，如果没有设置，就使用column
-	public boolean hidden=false;//是否是隐藏字段
-	private Boolean nullable=true;//true表示可以为空
-	private Integer sort=0;//显示的顺序
-	private boolean genQuery=false;//是否生成查询条件，主要是在grid
+	private String label;//列的中文名，如果没有设置，就使用column
+	private String comment;//注释
+	private String defaultValue;//默认值
+	
+	private int length;//列的长度
+	private int precision;
+	private int scale;
+	private boolean unique;
+	private boolean nullable;
+	private boolean insertable;
+	private boolean updatable;
+	
+//	public boolean hidden=false;//是否是隐藏字段
+//	private Boolean nullable=true;//true表示可以为空
+//	private Integer sort=0;//显示的顺序
+//	private boolean genQuery=false;//是否生成查询条件，主要是在grid
 	
 	private Boolean isEnum=false;
-	private String showType="none";//显示的类型，是textfield，还是combobox，还是radio，还是
-	private Map<String,String> showType_values=new HashMap<String,String>();
+//	private String showType="none";//显示的类型，是textfield，还是combobox，还是radio，还是
+//	private Map<String,String> showType_values=new HashMap<String,String>();
 
 	private String basepackage;//包名
 	private String javaType;

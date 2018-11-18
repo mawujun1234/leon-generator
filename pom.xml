@@ -8,35 +8,54 @@
   <name>leon-generator Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
-    
-    <dependency>
-    	<groupId>org.freemarker</groupId>
-    	<artifactId>freemarker</artifactId>
-    	<version>2.3.20</version>
-    </dependency>
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.12</version>
+    <scope>test</scope>
+</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.9.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.9.7</version>
+			<scope>test</scope>
+		</dependency>
+
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.28</version>
+</dependency>
 
     <dependency>
     	<groupId>com.mawujun</groupId>
     	<artifactId>leon-utils-new</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>
-    <dependency>
-    	<groupId>org.hibernate.javax.persistence</groupId>
-    	<artifactId>hibernate-jpa-2.0-api</artifactId>
-    	<version>1.0.1.Final</version>
-    	<scope>provided</scope>
-    </dependency>
-    <dependency>
-		<groupId>javax.validation</groupId>
-		<artifactId>validation-api</artifactId>
-		<version>1.1.0.Final</version>
-		<scope>provided</scope>
+	<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+			<scope>provided</scope>
 	</dependency>
     
     <dependency>
     	<groupId>org.apache.logging.log4j</groupId>
     	<artifactId>log4j-core</artifactId>
     	<version>2.3</version>
+    	<scope>provided</scope>
+    </dependency>
+    <dependency>
+    	<groupId>com.mawujun</groupId>
+    	<artifactId>leon-repository</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
     	<scope>provided</scope>
     </dependency>
   </dependencies>

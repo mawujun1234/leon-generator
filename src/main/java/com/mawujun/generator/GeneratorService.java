@@ -39,7 +39,7 @@ public class GeneratorService {
 	List<FtlFileInfo> ftl_file_manes=new ArrayList<FtlFileInfo>();//ftl文件的名称
 
 	//额外的配置选项
-	private ExtenConfig extenConfig;
+	//private ExtenConfig extenConfig;
 	
 	public void initConfiguration() throws IOException{
 		// TODO Auto-generated method stub
@@ -213,9 +213,9 @@ public class GeneratorService {
 	private  String generatorFileName(Class clazz,String ftl) throws ClassNotFoundException, TemplateException, IOException  {
 		
 		SubjectRoot root =javaEntityMetaDataService.getClassProperty(clazz);
-		if(this.getExtenConfig()!=null){
-			root.setExtenConfig(this.getExtenConfig());
-		}
+//		if(this.getExtenConfig()!=null){
+//			root.setExtenConfig(this.getExtenConfig());
+//		}
 		if(root==null){
 			throw new NullPointerException("SubjectRoot为null");
 		}
@@ -247,10 +247,10 @@ public class GeneratorService {
 		initConfiguration();
 		/* 创建数据模型 */
 		SubjectRoot root =javaEntityMetaDataService.initClassProperty(clazz);
-		if(this.getExtenConfig()!=null){
-			root.setExtenConfig(this.getExtenConfig());
-		}
-		
+//		if(this.getExtenConfig()!=null){
+//			root.setExtenConfig(this.getExtenConfig());
+//		}
+//		
 		
 		String output=PropertiesUtils.load("generator.properties").getProperty("output");
 		FileUtils.createDir(output);
@@ -281,9 +281,9 @@ public class GeneratorService {
 		initConfiguration();
 		/* 创建数据模型 */
 		SubjectRoot root =javaEntityMetaDataService.initClassProperty(clazz);
-		if(this.getExtenConfig()!=null){
-			root.setExtenConfig(this.getExtenConfig());
-		}
+//		if(this.getExtenConfig()!=null){
+//			root.setExtenConfig(this.getExtenConfig());
+//		}
 		
 		String fileName=this.generatorFileName(clazz, ftlfile.getName());
 		//按照模板的目录结构生成
@@ -343,9 +343,9 @@ public class GeneratorService {
 		//templete.setOutputEncoding("UTF-8");
 		/* 创建数据模型 */
 		SubjectRoot root =javaEntityMetaDataService.getClassProperty(clazz);
-		if(this.getExtenConfig()!=null){
-			root.setExtenConfig(this.getExtenConfig());
-		}
+//		if(this.getExtenConfig()!=null){
+//			root.setExtenConfig(this.getExtenConfig());
+//		}
 
 		templete.process(root, writer);
 		//out.flush();
@@ -360,14 +360,14 @@ public class GeneratorService {
 			JavaEntityMetaDataService javaEntityMetaDataService) {
 		this.javaEntityMetaDataService = javaEntityMetaDataService;
 	}
-
-	public ExtenConfig getExtenConfig() {
-		return extenConfig;
-	}
-
-	public void setExtenConfig(ExtenConfig extenConfig) {
-		this.extenConfig = extenConfig;
-	}
+//
+//	public ExtenConfig getExtenConfig() {
+//		return extenConfig;
+//	}
+//
+//	public void setExtenConfig(ExtenConfig extenConfig) {
+//		this.extenConfig = extenConfig;
+//	}
 	
 
 }

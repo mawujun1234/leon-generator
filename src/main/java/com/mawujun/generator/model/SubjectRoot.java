@@ -1,15 +1,20 @@
 package com.mawujun.generator.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.mawujun.generator.ExtenConfig;
+import org.apache.commons.lang3.StringUtils;
 
 public class SubjectRoot {
 	//private String dbName;
 	private String tableName;//表名
 	private String simpleClassName;//类名，不带包名的
+	private String uncapitalizeSimpleClassName;
 	private String className;
+	
+	private String alias;//别名，主要用于mybatis。如果指定胃，就使用指定胡，否则就使用类名，并且全部小写
 	
 	private String basepackage;//包名
 	private String idType;
@@ -23,12 +28,31 @@ public class SubjectRoot {
 	//private Map<Object,Object> extenConfig=new HashMap<Object,Object>();
 	//private Object extenConfig=new Object();
 	
-	private ExtenConfig extenConfig=new ExtenConfig();
+	//private ExtenConfig extenConfig=new ExtenConfig();
 
 	List<PropertyColumn> propertyColumns=new ArrayList<PropertyColumn>();
+	Map<String,PropertyColumn> propertyColumns_map=new HashMap<String,PropertyColumn>();
 	//List<PropertyColumn> baseTypePropertyColumns=new ArrayList<PropertyColumn>();
 	//存放需要产生查询条件的属性
 	List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
+	
+	public void setSimpleClassName(String simpleClassName) {
+		this.simpleClassName = simpleClassName;
+		this.uncapitalizeSimpleClassName=StringUtils.uncapitalize(this.getSimpleClassName());;
+	}
+	
+	public PropertyColumn getPropertyColumn(String property) {
+		return this.propertyColumns_map.get(property);
+	}
+	
+	public void addPropertyColumn(PropertyColumn pc) {
+		this.propertyColumns.add(pc);
+		this.propertyColumns_map.put(pc.getProperty(), pc);
+	}
+	
+	public String getUncapitalizeSimpleClassName() {
+		return this.uncapitalizeSimpleClassName;
+	}
 
 	public String getClassName() {
 		return className;
@@ -48,10 +72,6 @@ public class SubjectRoot {
 
 	public String getSimpleClassName() {
 		return simpleClassName;
-	}
-
-	public void setSimpleClassName(String simpleClassName) {
-		this.simpleClassName = simpleClassName;
 	}
 
 	public String getBasepackage() {
@@ -78,14 +98,6 @@ public class SubjectRoot {
 		this.idType = idType;
 	}
 
-	public ExtenConfig getExtenConfig() {
-		return extenConfig;
-	}
-
-	public void setExtenConfig(ExtenConfig extenConfig) {
-		this.extenConfig = extenConfig;
-	}
-
 	public List<PropertyColumn> getQueryProperties() {
 		return queryProperties;
 	}
@@ -93,5 +105,17 @@ public class SubjectRoot {
 	public void setQueryProperties(List<PropertyColumn> queryProperties) {
 		this.queryProperties = queryProperties;
 	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+
+
+
 
 }

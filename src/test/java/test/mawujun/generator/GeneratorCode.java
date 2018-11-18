@@ -1,7 +1,9 @@
-package com.mawujun.generator;
+package test.mawujun.generator;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+
+import com.mawujun.generator.GeneratorService;
 
 import freemarker.template.TemplateException;
 /**
@@ -15,15 +17,15 @@ public class GeneratorCode {
 
 	public static void main(String[] args) throws TemplateException, IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {	
 
-		// 这里弄成更加好用的方式，弄成级联的方式，例如getExtjsConfig.set。。。
-		ExtenConfig aa = new ExtenConfig();
-		aa.extjs_treeForm_model = true;
-		aa.extjs_packagePrefix = "y";
-		aa.extjs_form_layoutColumns = -1;
-
-		aa.extjs_grid_store_userModel = false;
-		aa.extjs_grid_createDelUpd_button = true;
-		generatorService.setExtenConfig(aa);
+//		// 这里弄成更加好用的方式，弄成级联的方式，例如getExtjsConfig.set。。。
+//		ExtenConfig aa = new ExtenConfig();
+//		aa.extjs_treeForm_model = true;
+//		aa.extjs_packagePrefix = "y";
+//		aa.extjs_form_layoutColumns = -1;
+//
+//		aa.extjs_grid_store_userModel = false;
+//		aa.extjs_grid_createDelUpd_button = true;
+//		generatorService.setExtenConfig(aa);
 
 		generatorService.generatorAllFile(EntityTest.class);
 

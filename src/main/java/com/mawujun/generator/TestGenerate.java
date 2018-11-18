@@ -6,10 +6,10 @@ import java.util.List;
 
 import com.mawujun.utils.file.FileUtils;
 
-public class Test {
+public class TestGenerate {
 
 	public static void main(String[] args) throws IOException {
-		String aa=Test.class.getClassLoader().getResource(".").getFile();
+		String aa=TestGenerate.class.getClassLoader().getResource(".").getFile();
 		aa=aa.replaceAll("\\\\", "/");
 		String bb="/templates/default";
 		if(aa.indexOf(bb)!=-1){

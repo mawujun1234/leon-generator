@@ -3,7 +3,7 @@ package com.mawujun.generator;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,16 +12,20 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-import com.mawujun.generator.model.FieldDefine;
+import org.apache.ibatis.type.Alias;
+
 import com.mawujun.generator.model.PropertyColumn;
 import com.mawujun.generator.model.PropertyColumnComparator;
-import com.mawujun.generator.model.ShowType;
 import com.mawujun.generator.model.SubjectRoot;
+import com.mawujun.generator.other.DefaultNameStrategy;
 import com.mawujun.generator.other.NameStrategy;
 import com.mawujun.utils.ReflectUtils;
 import com.mawujun.utils.properties.PropertiesUtils;
+import com.mawujun.utils.string.StringUtils;
 
 /**
  * 用于从领域模型中读取 meta信息的
@@ -30,7 +34,7 @@ import com.mawujun.utils.properties.PropertiesUtils;
  */
 public class JavaEntityMetaDataService {
 
-	NameStrategy nameStrategy;
+	NameStrategy nameStrategy=new DefaultNameStrategy();
 	
 	String id_name="id";//默认的id名称
 	
@@ -65,6 +69,24 @@ public class JavaEntityMetaDataService {
 		if(cache.containsKey(clazz.getName())){
 			return cache.get(clazz.getName());
 		}
+		try {
+			return initClassProperty(clazz);
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 	public SubjectRoot initClassProperty(Class clazz) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
@@ -84,10 +106,15 @@ public class JavaEntityMetaDataService {
 				throw new RuntimeException("没有在实体类上添加@Entity注解");
 			}
 		}
+		Alias aliasAnnotation=(Alias)clazz.getAnnotation(Alias.class);
+		if(tableAnnotation!=null){
+			root.setAlias(aliasAnnotation.value());
+		} else {
+			root.setAlias(nameStrategy.classToAlias(clazz.getSimpleName()));
+		}
+		
 		//root.setTableName(nameStrategy.classToTableName(clazz.getSimpleName().toLowerCase()));
 
-		
-		
 		root.setSimpleClassName(clazz.getSimpleName());
 		root.setClassName(clazz.getName());
 		root.setBasepackage(clazz.getPackage().getName());
@@ -96,69 +123,101 @@ public class JavaEntityMetaDataService {
 		
 		
 		Field[] fields=ReflectUtils.getAllDeclaredFields(clazz);
-		List<PropertyColumn> propertyColumns =new ArrayList<PropertyColumn>();
+		//List<PropertyColumn> propertyColumns =new ArrayList<PropertyColumn>();
 		//存放需要产生查询条件的属性
-		List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
+		//List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
 		for(Field field:fields){
+			boolean isStatic = Modifier.isStatic(field.getModifiers());
+			if(isStatic) {
+				continue;
+			}
 			PropertyColumn propertyColumn=new PropertyColumn();
 			propertyColumn.setProperty(field.getName());
-			FieldDefine fieldDefine=field.getAnnotation(FieldDefine.class);
-			if(fieldDefine!=null){
-				if(fieldDefine.title()==null || "".equals(fieldDefine.title())){
-					propertyColumn.setProperty_label(field.getName());
-				} else {
-					propertyColumn.setProperty_label(fieldDefine.title());
-				}
-				propertyColumn.setHidden(fieldDefine.hidden());
-				propertyColumn.setSort(fieldDefine.sort());
-				propertyColumn.setShowType(fieldDefine.showType().toString());
-				if(fieldDefine.showType()!=ShowType.none){
-					//如果是枚举类型，就反射获取枚举值，作为数据的内容，如果不是枚举类型，就弄成一个从后台获取内容的combobox
-					if(field.getType().isEnum()){
-						propertyColumn.setIsEnum(true);
-						//field.get
-						Class clz =field.getType();
-						Method toName = clz.getMethod("getName");
-						//Map<String,String> showTypeValues=new HashMap<String,String>();
-						for (Object obj : clz.getEnumConstants()) {
-							propertyColumn.addShowType_value(obj.toString(), toName.invoke(obj).toString());
-							//System.out.println(obj);
-							//System.out.println(toName.invoke(obj));
-						}
-					}
-				}
-				propertyColumn.setGenQuery(fieldDefine.genQuery());
-			}
+//			FieldDefine fieldDefine=field.getAnnotation(FieldDefine.class);
+//			if(fieldDefine!=null){
+//				if(fieldDefine.title()==null || "".equals(fieldDefine.title())){
+//					propertyColumn.setLabel(field.getName());
+//				} else {
+//					propertyColumn.setLabel(fieldDefine.title());
+//				}
+//				propertyColumn.setHidden(fieldDefine.hidden());
+//				propertyColumn.setSort(fieldDefine.sort());
+//				propertyColumn.setShowType(fieldDefine.showType().toString());
+//				if(fieldDefine.showType()!=ShowType.none){
+//					//如果是枚举类型，就反射获取枚举值，作为数据的内容，如果不是枚举类型，就弄成一个从后台获取内容的combobox
+//					if(field.getType().isEnum()){
+//						propertyColumn.setIsEnum(true);
+//						//field.get
+//						Class clz =field.getType();
+//						Method toName = clz.getMethod("getName");
+//						//Map<String,String> showTypeValues=new HashMap<String,String>();
+//						for (Object obj : clz.getEnumConstants()) {
+//							propertyColumn.addShowType_value(obj.toString(), toName.invoke(obj).toString());
+//							//System.out.println(obj);
+//							//System.out.println(toName.invoke(obj));
+//						}
+//					}
+//				}
+//				propertyColumn.setGenQuery(fieldDefine.genQuery());
+//			}
 			//不准为空的判断
 			Column column=field.getAnnotation(Column.class);
 			if(column!=null){
 				propertyColumn.setNullable(column.nullable());
+				propertyColumn.setUnique(column.unique());
+				propertyColumn.setInsertable(column.insertable());
+				propertyColumn.setUpdatable(column.updatable());
+				if(StringUtils.hasText(column.name())) {
+					propertyColumn.setColumn(column.name());
+				} else {
+					propertyColumn.setColumn(nameStrategy.propertyToColumnName(propertyColumn.getProperty()));
+				}
+				propertyColumn.setLength(column.length());
+				propertyColumn.setScale(column.scale());
+				propertyColumn.setPrecision(column.precision());
+				
+				
+				
+			} else {
+				propertyColumn.setColumn(nameStrategy.propertyToColumnName(propertyColumn.getProperty()));
 			}
+			propertyColumn.setJavaType(field.getType());
+			
 			NotNull notNull=field.getAnnotation(NotNull.class);
 			if(notNull!=null){
 				propertyColumn.setNullable(false);
 			}
+			NotEmpty notEmpty=field.getAnnotation(NotEmpty.class);
+			if(notEmpty!=null){
+				propertyColumn.setNullable(false);
+			}
+			Size size=field.getAnnotation(Size.class);
+			if(size!=null){
+				if(size.max()!=Integer.MAX_VALUE) {
+					propertyColumn.setLength(size.max());
+				}
+				
+			}
 			
-			propertyColumn.setColumn(nameStrategy.propertyToColumnName(propertyColumn.getColumn()));
-			propertyColumn.setJavaType(field.getType());
-			propertyColumns.add(propertyColumn);
+			//propertyColumns.add(propertyColumn);
+			root.addPropertyColumn(propertyColumn);
 			
 			//默认是使用id作为名称
 			if(id_name.equals(propertyColumn.getProperty())){
 				root.setIdType(field.getType().getSimpleName());
 			}
 			
-			if(propertyColumn.getGenQuery()){
-				queryProperties.add(propertyColumn);
-			}
+//			if(propertyColumn.getGenQuery()){
+//				queryProperties.add(propertyColumn);
+//			}
 		}
 
 		//对属性显示的时候进行排序
-		propertyColumns.sort(new PropertyColumnComparator());
+		//propertyColumns.sort(new PropertyColumnComparator());
 		
 		
-		root.setPropertyColumns(propertyColumns);
-		root.setQueryProperties(queryProperties);
+		//root.setPropertyColumns(propertyColumns);
+		//root.setQueryProperties(queryProperties);
 		cache.put(clazz.getName(), root);
 		return root;
 	}

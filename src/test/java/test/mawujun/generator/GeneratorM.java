@@ -1,5 +1,5 @@
 
-package com.mawujun.generator;
+package test.mawujun.generator;
 
 import java.io.IOException;
 

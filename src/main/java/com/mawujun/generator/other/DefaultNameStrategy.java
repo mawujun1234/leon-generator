@@ -16,6 +16,12 @@ public class DefaultNameStrategy implements NameStrategy {
 		// TODO Auto-generated method stub
 		return tablePrefix + StringUtils.camelToUnderline(className);
 	}
+	@Override
+	public String classToAlias(String className) {
+		// TODO Auto-generated method stub
+		return className.toLowerCase();
+	}
+
 	/**
 	 * 默认无前缀，并且驼峰变下划线
 	 */
@@ -38,5 +44,5 @@ public class DefaultNameStrategy implements NameStrategy {
 	public static void setTablePrefix(String tablePrefix) {
 		DefaultNameStrategy.tablePrefix = tablePrefix;
 	}
-
+	
 }

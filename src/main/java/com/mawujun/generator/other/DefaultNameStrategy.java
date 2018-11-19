@@ -14,7 +14,7 @@ public class DefaultNameStrategy implements NameStrategy {
 	public static  String tablePrefix = "t_";
 	public String classToTableName(String className) {
 		// TODO Auto-generated method stub
-		return tablePrefix + StringUtils.camelToUnderline(className);
+		return tablePrefix + StringUtils.camelToUnderline(StringUtils.uncapitalize(className));
 	}
 	@Override
 	public String classToAlias(String className) {

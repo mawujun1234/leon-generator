@@ -31,16 +31,16 @@ import com.mawujun.repository.identity.UUIDEntityValidate;
  * @author Administrator
  *
  */
-@Alias("city")//用于mybatis
+@Alias("city2")
 @Entity
-@Table(name="t_city")
-public class City extends UUIDEntityValidate{
+@Table
+public class City2 extends UUIDEntityValidate{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3172844311839975513L;
-	@Column(length=30)
+	@Column
 	private String name;
 	
 	private Integer age;
@@ -56,7 +56,7 @@ public class City extends UUIDEntityValidate{
 	
 	@Enumerated(EnumType.STRING)
 	@Column(length=10)
-	private Sex sex=Sex.Man;
+	private Sex sex;
 	
 	
 	

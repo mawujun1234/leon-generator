@@ -1,5 +1,7 @@
 package com.mawujun.generator.model;
 
+import com.mawujun.generator.IDGenEnum;
+
 public class PropertyColumn {
 	private String column;//列名
 	private String property;//属性名称
@@ -28,8 +30,12 @@ public class PropertyColumn {
 
 	private String basepackage;//包名
 	private String className;
+	private Class<?> clazz;
 	private String simpleClassName;//其实不用定义这个属性，其实是可以直接写get方法，下同
 //	private String jsType;
+	
+	private boolean isId;//是否是id的属性
+	private IDGenEnum idGenEnum;
 	
 	
 	//private Boolean isIdProperty=false;//是不是属于id的列
@@ -78,7 +84,8 @@ public class PropertyColumn {
 //		//jsJavaMapper.put(, "");
 //	}
 
-	public void setJavaType(Class clazz) {
+	public void setClass(Class<?> clazz) {
+		this.clazz=clazz;
 		this.className = clazz.getName();
 		this.basepackage=clazz.getPackage().getName();
 		//System.out.println(javaType);
@@ -251,6 +258,36 @@ public class PropertyColumn {
 
 	public void setSimpleClassName(String simpleClassName) {
 		this.simpleClassName = simpleClassName;
+	}
+
+
+	public boolean isId() {
+		return isId;
+	}
+
+
+	public void setId(boolean isId) {
+		this.isId = isId;
+	}
+
+
+	public IDGenEnum getIdGenEnum() {
+		return idGenEnum;
+	}
+
+
+	public void setIdGenEnum(IDGenEnum idGenEnum) {
+		this.idGenEnum = idGenEnum;
+	}
+
+
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+
+	public void setClazz(Class<?> clazz) {
+		this.clazz = clazz;
 	}
 
 

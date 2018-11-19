@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mawujun.generator.IDGenEnum;
+
 public class SubjectRoot {
 	//private String dbName;
 	private String tableName;//表名
@@ -17,12 +19,20 @@ public class SubjectRoot {
 	private String alias;//别名，主要用于mybatis。如果指定胃，就使用指定胡，否则就使用类名，并且全部小写
 	
 	private String basepackage;//包名
-	private String idType;
+	//private String idType;
 	//private String idColumnName;
 	//private String idPropertyName;
 	//private String idGeneratorStrategy="";
 	//private String sequenceName;
 	//private boolean hasResultMap;//是组件关联的时候
+	
+	private IDGenEnum idGenEnum;
+	private Class<?> idClass;
+	private String idColumn;
+	private String idProperty;
+	private String idSequenceName;//序列化的时候的名字
+	
+	
 	
 	//private String jsPackage;//用于用表生成的时候指定的
 	//private Map<Object,Object> extenConfig=new HashMap<Object,Object>();
@@ -90,13 +100,6 @@ public class SubjectRoot {
 		this.propertyColumns = propertyColumns;
 	}
 
-	public String getIdType() {
-		return idType;
-	}
-
-	public void setIdType(String idType) {
-		this.idType = idType;
-	}
 
 	public List<PropertyColumn> getQueryProperties() {
 		return queryProperties;
@@ -112,6 +115,58 @@ public class SubjectRoot {
 
 	public void setAlias(String alias) {
 		this.alias = alias;
+	}
+
+	public IDGenEnum getIdGenEnum() {
+		return idGenEnum;
+	}
+
+	public void setIdGenEnum(IDGenEnum idGenEnum) {
+		this.idGenEnum = idGenEnum;
+	}
+
+	public Map<String, PropertyColumn> getPropertyColumns_map() {
+		return propertyColumns_map;
+	}
+
+	public void setPropertyColumns_map(Map<String, PropertyColumn> propertyColumns_map) {
+		this.propertyColumns_map = propertyColumns_map;
+	}
+
+	public void setUncapitalizeSimpleClassName(String uncapitalizeSimpleClassName) {
+		this.uncapitalizeSimpleClassName = uncapitalizeSimpleClassName;
+	}
+
+	public String getIdSequenceName() {
+		return idSequenceName;
+	}
+
+	public void setIdSequenceName(String idSequenceName) {
+		this.idSequenceName = idSequenceName;
+	}
+
+	public String getIdColumn() {
+		return idColumn;
+	}
+
+	public void setIdColumn(String idColumn) {
+		this.idColumn = idColumn;
+	}
+
+	public String getIdProperty() {
+		return idProperty;
+	}
+
+	public void setIdProperty(String idProperty) {
+		this.idProperty = idProperty;
+	}
+
+	public Class<?> getIdClass() {
+		return idClass;
+	}
+
+	public void setIdClass(Class<?> idClass) {
+		this.idClass = idClass;
 	}
 
 

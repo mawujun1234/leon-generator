@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.mawujun.generator.GeneratorService;
 
 import freemarker.template.TemplateException;
+import test.mawujun.generator.model.City;
 /**
  * 生成代码的主类，以ExtenConfig_�?头的类，是用来控制代码生成的，因为可能存在在不同的情况下，生成的代码会不�?样，有个性化的需求，但大部分�?样�??
  * 如果大部分都不样的话，就自己重写ftl文件
@@ -27,7 +28,7 @@ public class GeneratorCode {
 //		aa.extjs_grid_createDelUpd_button = true;
 //		generatorService.setExtenConfig(aa);
 
-		generatorService.generatorAllFile(EntityTest.class);
+		generatorService.generatorAllFile(City.class);
 
 	}
 	

@@ -84,9 +84,12 @@ public class PropertyColumn {
 //		//jsJavaMapper.put(, "");
 //	}
 
-	public void setClass(Class<?> clazz) {
+	public void setClazz(Class<?> clazz) {
 		this.clazz=clazz;
 		this.className = clazz.getName();
+		if(clazz.isPrimitive()) {
+			throw new RuntimeException("请把"+this.getProperty()+"转换成包装类型");
+		}
 		this.basepackage=clazz.getPackage().getName();
 		//System.out.println(javaType);
 		this.simpleClassName=className.substring(className.lastIndexOf('.')+1);
@@ -286,9 +289,7 @@ public class PropertyColumn {
 	}
 
 
-	public void setClazz(Class<?> clazz) {
-		this.clazz = clazz;
-	}
+	
 
 
 	

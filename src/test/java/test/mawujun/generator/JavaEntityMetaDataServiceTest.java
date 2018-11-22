@@ -69,8 +69,8 @@ public class JavaEntityMetaDataServiceTest {
 		assertNotNull(name);
 		assertEquals("name", name.getProperty());
 		assertEquals("name", name.getColumn());
-		assertEquals("name", name.getLabel());
-		assertEquals(null, name.getComment());
+		assertEquals("名称", name.getLabel());
+		assertEquals("名称注释", name.getComment());
 		assertEquals(null, name.getDefaultValue());
 		assertEquals(30, name.getLength());
 		assertEquals(0, name.getPrecision());
@@ -86,6 +86,28 @@ public class JavaEntityMetaDataServiceTest {
 		assertEquals(false,name.isId());
 		assertEquals(IDGenEnum.none,name.getIdGenEnum());
 		
+		
+		PropertyColumn age=root.getPropertyColumn("age");
+		assertNotNull(age);
+		assertEquals("age", age.getProperty());
+		assertEquals("age", age.getColumn());
+		assertEquals("年龄", age.getLabel());
+		assertEquals("年龄", age.getComment());
+		assertEquals("1", age.getDefaultValue());
+		assertEquals(255, age.getLength());
+		assertEquals(0, age.getPrecision());
+		assertEquals(0, age.getScale());
+		assertEquals(false, age.isUnique());
+		assertEquals(true, age.isNullable());
+		assertEquals(true, age.isInsertable());
+		assertEquals(true, age.isUpdatable());
+		assertEquals(false, age.getIsEnum());
+		assertEquals("java.lang", age.getBasepackage());
+		assertEquals("java.lang.Integer", age.getClassName());
+		assertEquals("Integer", age.getSimpleClassName());
+		assertEquals(false,age.isId());
+		assertEquals(IDGenEnum.none,age.getIdGenEnum());
+		
 
 
 		PropertyColumn price=root.getPropertyColumn("price");
@@ -94,7 +116,7 @@ public class JavaEntityMetaDataServiceTest {
 		assertEquals("price", price.getColumn());
 		assertEquals("price", price.getLabel());
 		assertEquals(null, price.getComment());
-		assertEquals(null, price.getDefaultValue());
+		assertEquals("1.1", price.getDefaultValue());
 		assertEquals(255, price.getLength());
 		assertEquals(10, price.getPrecision());
 		assertEquals(2, price.getScale());
@@ -108,6 +130,7 @@ public class JavaEntityMetaDataServiceTest {
 		assertEquals("Double", price.getSimpleClassName());
 		assertEquals(false,price.isId());
 		assertEquals(IDGenEnum.none,price.getIdGenEnum());
+		
 		
 		PropertyColumn createDate=root.getPropertyColumn("createDate");
 		assertNotNull(createDate);

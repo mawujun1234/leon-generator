@@ -7,7 +7,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,6 +20,7 @@ import javax.validation.constraints.Size;
 
 import org.apache.ibatis.type.Alias;
 
+import com.mawujun.generator.model.ColDefinition;
 import com.mawujun.generator.model.PropertyColumn;
 import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.DefaultNameStrategy;
@@ -258,6 +258,20 @@ public class JavaEntityMetaDataService {
 			//if(field.isEnumConstant()) {
 			if(field.getType().isEnum()) {
 				propertyColumn.setIsEnum(true);
+			}
+			
+			ColDefinition colDefinition=field.getAnnotation(ColDefinition.class);
+			if(colDefinition!=null) {
+				if(StringUtils.hasText(colDefinition.defaultValue())) {
+					propertyColumn.setDefaultValue(colDefinition.defaultValue());
+				}
+				if(StringUtils.hasText(colDefinition.label())) {
+					propertyColumn.setLabel(colDefinition.label());
+					propertyColumn.setComment(colDefinition.label());
+				}
+				if(StringUtils.hasText(colDefinition.comment())) {
+					propertyColumn.setComment(colDefinition.comment());
+				}
 			}
 			
 			

@@ -17,6 +17,8 @@ import com.mawujun.generator.model.ColDefinition;
 import com.mawujun.repository.identity.UUIDEntityValidate;
 
 /**
+ * 所有字段不要设置默认值，因为动态更新的时候，会根据null进行判断是否更新
+ * 所有字段都使用包装类型
  * 1：时间映射,@Temporal注解
  *  CreationTimestamp创建时的默认值，UpdateTimestamp在更新的时候会生成默认值
  * 2：枚举映射,@Enumerated
@@ -60,7 +62,7 @@ public class City extends UUIDEntityValidate{
 	
 	@Enumerated(EnumType.STRING)
 	@Column(length=10)
-	private Sex sex=Sex.Man;
+	private Sex sex;
 	
 	
 	

@@ -1,6 +1,5 @@
 package com.mawujun.generator;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -25,8 +24,8 @@ import com.mawujun.generator.model.PropertyColumn;
 import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.DefaultNameStrategy;
 import com.mawujun.generator.other.NameStrategy;
+import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.ReflectUtils;
-import com.mawujun.utils.properties.PropertiesUtils;
 import com.mawujun.utils.string.StringUtils;
 
 /**
@@ -49,10 +48,6 @@ public class JavaEntityMetaDataService {
 			String className=aa.getProperty("nameStrategy");
 			Class clazz=Class.forName(className);
 			nameStrategy=(NameStrategy) clazz.newInstance();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

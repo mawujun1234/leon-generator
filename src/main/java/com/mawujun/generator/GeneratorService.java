@@ -14,8 +14,8 @@ import java.util.Set;
 
 import com.mawujun.generator.model.FtlFileInfo;
 import com.mawujun.generator.model.SubjectRoot;
+import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.file.FileUtils;
-import com.mawujun.utils.properties.PropertiesUtils;
 import com.mawujun.utils.string.StringUtils;
 
 import freemarker.cache.FileTemplateLoader;

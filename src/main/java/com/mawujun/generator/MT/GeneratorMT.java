@@ -20,6 +20,8 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
@@ -35,13 +37,21 @@ import com.mawujun.utils.file.FileUtils;
  *
  */
 public class GeneratorMT {
-	 Logger logger = LogManager.getLogger(FileUtils.class);
+	static Logger logger = LogManager.getLogger(FileUtils.class);
 	
-	private Class annotationClass=javax.persistence.Entity.class;
-	private Class annotationTable=javax.persistence.Table.class;
+	//private Class annotationClass=javax.persistence.Entity.class;
+	//private Class annotationTable=javax.persistence.Table.class;
 	
-	private String targetPackage;
-	
+	private static String targetPackage;
+	/**
+	 * 在当前项目的源代码目录生成,M，T类
+	 * @param packageName
+	 * @param targetPackage
+	 * @throws IOException
+	 */
+	public static void generateMT(String packageName,String targetPackage) {
+		generateMT(packageName,System.getProperty("user.dir")+File.separator+"src"+File.separator+"main"+File.separator+"java",targetPackage);
+	}
 	/**
 	 * 搜索某个路径下面，标注了@Entity的类，并生成和android中的R类似的类，M
 	 * @author mawujun email:160649888@163.com qq:16064988
@@ -50,12 +60,21 @@ public class GeneratorMT {
 	 * @param targetPackage com.mawujun.utils
 	 * @throws IOException
 	 */
-	public void generateM(String packageName,String targetMDir,String targetPackage) throws IOException{
+	public static void generateMT(String packageName,String targetMDir,String targetPackage) {
 		Assert.notNull(packageName);
 		Assert.notNull(targetMDir);
 		Assert.notNull(targetPackage);
-		this.targetPackage=targetPackage;
-		generateM(getClasssFromPackage(packageName),targetMDir);
+		GeneratorMT.targetPackage=targetPackage;
+		try {
+			generateM(getClasssFromPackage(packageName),targetMDir);
+			
+			generateT(getClasssFromPackage(packageName),targetMDir);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 	
     /** 
@@ -65,7 +84,7 @@ public class GeneratorMT {
      *            package完整名称 
      * @return List包含所有class的实例 
      */  
-    private List<Class> getClasssFromPackage(String pack) {  
+    private static List<Class> getClasssFromPackage(String pack) {  
         List<Class> clazzs = new ArrayList<Class>();  
       
         // 是否循环搜索子包  
@@ -115,7 +134,7 @@ public class GeneratorMT {
      * @param clazzs 
      *            找到class以后存放的集合 
      */  
-    private void findClassInPackageByFile( String packageName, String filePath, final boolean recursive, List<Class> clazzs) {  
+    private static void findClassInPackageByFile( String packageName, String filePath, final boolean recursive, List<Class> clazzs) {  
 
         File dir = new File(filePath);  
         if (!dir.exists() || !dir.isDirectory()) {  
@@ -137,7 +156,7 @@ public class GeneratorMT {
                 String className = file.getName().substring(0, file.getName().length() - 6);  
                 try {  
                 	Class clazz=GeneratorMT.class.getClassLoader().loadClass(packageName + "." + className);
-                	Annotation annoation=clazz.getAnnotation(annotationClass);
+                	Annotation annoation=clazz.getAnnotation(Entity.class);
     				if(annoation!=null){
     					logger.info("============================找到实体类:"+clazz.getName());
     					clazzs.add(clazz); 
@@ -163,9 +182,13 @@ public class GeneratorMT {
      * @param entities
      * @throws IOException
      */
-    private void generateM(List<Class> entities,String targetMDir) throws IOException{
+    private static void generateM(List<Class> entities,String targetMDir) throws IOException{
+    	File dir=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar));
+    	if(!dir.exists()) {
+    		dir.mkdirs();
+    	}
     	//生成M
-    	File file=new File(targetMDir+File.separatorChar+this.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
+    	File file=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
@@ -174,7 +197,7 @@ public class GeneratorMT {
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package "+this.targetPackage+";\n");
+    	fileWrite.append("package "+GeneratorMT.targetPackage+";\n");
     	fileWrite.append("public final class M {\n");
     	
     	
@@ -205,7 +228,7 @@ public class GeneratorMT {
                 		 fileWrite.append("	 /**\n");
                     	 fileWrite.append("	 * 返回复合主键的组成，，以对象关联的方式:"+field.getName()+"\n");
                     	 fileWrite.append("	 */\n");
-                    	 fileWrite.append("	public static final class "+field.getName()+" {\n");
+                    	 fileWrite.append("	public static final class "+field.getName()+"Class {\n");
                     	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
                     	 List<Field> embeddedIdFields= getClassField(fieldClass);
                     	 for (Field embeddedIdfield : embeddedIdFields) { 
@@ -214,19 +237,19 @@ public class GeneratorMT {
                     	 fileWrite.append("			\n");
                     	 
                      	 fileWrite.append("	    /**\n");
-	                	 fileWrite.append("	    * 返回的是复合主键的属性名称，主要用于属性过滤或以id来查询的时候\n");
+	                	 fileWrite.append("	    * 返回的是复合主键类的名称\n");
 	                	 fileWrite.append("	    */\n");
 	                	 fileWrite.append("	    public static String name(){ \n");
-	                	 fileWrite.append("		    return \""+field.getName()+"\";\n");
+	                	 fileWrite.append("		    return \""+fieldClass.getSimpleName()+"\";\n");
 	                	 fileWrite.append("	    }\n");
 	                	 
                     	 fileWrite.append("	}\n");
                     	 
                     	 
-//                    	 fileWrite.append("	/**\n");
-//                    	 fileWrite.append("	* 这是一个复合主键，返回的是该复合主键的属性名称，在hql中使用:"+field.getName()+"\n");
-//                    	 fileWrite.append("	*/\n");
-//                    	 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
+                    	 fileWrite.append("	/**\n");
+                    	 fileWrite.append("	* 这是一个复合主键，返回的是该复合主键的属性名称，在hql中使用:"+field.getName()+"\n");
+                    	 fileWrite.append("	*/\n");
+                    	 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
                 	 } else {
 
 	                	 //返回关联类的属性，以对象关联的方式
@@ -286,9 +309,9 @@ public class GeneratorMT {
      * @param entities
      * @throws IOException
      */
-    public void generateT(List<Class> entities,String targetMDir) throws IOException{
+    private static void generateT(List<Class> entities,String targetMDir) throws IOException{
     	//生成T
-    	File file=new File(targetMDir+File.separatorChar+this.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
+    	File file=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"T.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
@@ -297,24 +320,65 @@ public class GeneratorMT {
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package "+this.targetPackage+";\n");
+    	fileWrite.append("package "+GeneratorMT.targetPackage+";\n");
     	fileWrite.append("public final class T {\n");
     	
     	
     	for(Class clazz:entities){
     		
 
-    		Table annoation=(Table)clazz.getAnnotation(annotationTable);
+    		Table annoation=(Table)clazz.getAnnotation(Table.class);
+    		String tablename=null;
     		if(annoation==null){
-    			throw new NullPointerException(clazz.getClass()+"的Table注解没有设置");
+    			//throw new NullPointerException(clazz.getClass()+"的Table注解没有设置");
+    			tablename=clazz.getName();
+    		} else {
+    			tablename=annoation.name();
     		}
     		logger.info("============================================="+annoation.name());
     		
     		//fileWrite.append("public static final class "+clazz.getSimpleName()+" {\n");
-    		fileWrite.append("public static final class "+annoation.name()+" {\n");
+    		fileWrite.append("public static final class "+tablename+" {\n");
     		 //Field[]fields = clazz.getDeclaredFields();
     		 Set<String> existField=new HashSet<String>();
     		 
+    		 IdClass idClassAnnotation=(IdClass)clazz.getAnnotation(IdClass.class);
+    		 List<Field> idClass_fiekds=null;
+    		 if(idClassAnnotation!=null) {
+    			 Class idClass=idClassAnnotation.value();
+    			 
+    			 idClass_fiekds=getClassField(idClass);
+    			 if(idClass_fiekds!=null && idClass_fiekds.size()>0) {
+             		// Class<?> fieldClass=field.getType();
+             		 fileWrite.append("	 /**\n");
+                 	 fileWrite.append("	 * 这个是复合主键。里面的是复合组件的组成列的列名\n");
+                 	 fileWrite.append("	 */\n");
+                 	 fileWrite.append("	public static final class PK {\n");
+                 	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
+                 	 //List<Field> embeddedIdFields= getClassField(fieldClass);
+                 	 for (Field embeddedIdfield : idClass_fiekds) { 
+                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
+                 		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
+             				 fileWrite.append("		public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+             			 } else {
+             				 fileWrite.append("		public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
+             			 }
+                 	 }
+                 	 fileWrite.append("			\n");
+                 	 fileWrite.append("	}\n");
+                 	 
+//                 	 for (Field embeddedIdfield : idClass_fiekds) {
+//                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
+//                 		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
+//             				 fileWrite.append("	public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+//             			 } else {
+//             				 fileWrite.append("	public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
+//             			 }
+//                 	 }
+                 	 idClass_fiekds=null;
+             	 }
+    		 }
+    				 
     		List<Field> fields= getClassField(clazz);
              for (Field field : fields) { //完全等同于上面的for循环
                  //System.out.println(field.getName()+" "+field.getType());
@@ -332,7 +396,7 @@ public class GeneratorMT {
             		 fileWrite.append("	 /**\n");
                 	 fileWrite.append("	 * 这个是复合主键。里面的是复合组件的组成列的列名\n");
                 	 fileWrite.append("	 */\n");
-                	 fileWrite.append("	public static final class "+fieldClass.getSimpleName()+" {\n");
+                	 fileWrite.append("	public static final class PK {\n");
                 	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
                 	 List<Field> embeddedIdFields= getClassField(fieldClass);
                 	 for (Field embeddedIdfield : embeddedIdFields) { 
@@ -345,7 +409,16 @@ public class GeneratorMT {
                 	 }
                 	 fileWrite.append("			\n");
                 	 fileWrite.append("	}\n");
-            	 } else if(isBaseType(field.getType()) || field.getType().isEnum()){
+                	 
+                	 for (Field embeddedIdfield : embeddedIdFields) {
+                		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
+                		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
+            				 fileWrite.append("	public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+            			 } else {
+            				 fileWrite.append("	public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
+            			 }
+                	 }
+            	 }  else if(isBaseType(field.getType()) || field.getType().isEnum()){
             			 
             			 Column columnAnnotation=(Column)field.getAnnotation(Column.class);
             			 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
@@ -384,7 +457,7 @@ public class GeneratorMT {
      * @param aFieldName 
      * @return 
      */  
-    private List<Field> getClassField(Class aClazz) {  
+    private static List<Field> getClassField(Class aClazz) {  
 	    Field[] declaredFields = aClazz.getDeclaredFields();  
 	    List<Field> fields=new ArrayList<Field>();
 	    
@@ -403,18 +476,18 @@ public class GeneratorMT {
 	    }  
 	    return fields;  
 	} 
-    public boolean isBaseType(Class clz){
+    public static boolean isBaseType(Class clz){
 		//如果是基本类型就返回true
 		if(clz == UUID.class || clz == URL.class || clz == String.class || clz==Date.class || clz==java.sql.Date.class || clz==java.sql.Timestamp.class || clz.isPrimitive() || isWrapClass(clz)){
 			return true;
 		}
 		return false;
 	}
-    public boolean isOf(Class<?> orginType,Class<?> type){
+    public static boolean isOf(Class<?> orginType,Class<?> type){
     	return type.isAssignableFrom(orginType);
     }
     
-    public boolean isWrapClass(Class clz) {
+    public static boolean isWrapClass(Class clz) {
 		try {
 			return ((Class) clz.getField("TYPE").get(null)).isPrimitive();
 		} catch (Exception e) {

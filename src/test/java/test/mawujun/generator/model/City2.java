@@ -6,14 +6,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.apache.ibatis.type.Alias;
+import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mawujun.repository.identity.UUIDEntityValidate;
 
 /**
  * 1：时间映射,@Temporal注解
@@ -34,7 +36,14 @@ import com.mawujun.repository.identity.UUIDEntityValidate;
 @Alias("city2")
 @Entity
 @Table
-public class City2 extends UUIDEntityValidate{
+public class City2{
+	@Id
+	//@GeneratedValue(generator = "system-uuid")
+	//@GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
+	@Column(length=36)
+	protected String id;
 	
 	/**
 	 * 

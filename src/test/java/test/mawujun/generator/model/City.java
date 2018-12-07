@@ -6,15 +6,17 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.apache.ibatis.type.Alias;
+import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mawujun.generator.model.ColDefinition;
-import com.mawujun.repository.identity.UUIDEntityValidate;
 
 /**
  * 所有字段不要设置默认值，因为动态更新的时候，会根据null进行判断是否更新
@@ -37,8 +39,14 @@ import com.mawujun.repository.identity.UUIDEntityValidate;
 @Alias("city")//用于mybatis
 @Entity
 @Table(name="t_city")
-public class City extends UUIDEntityValidate{
-	
+public class City {
+	@Id
+	//@GeneratedValue(generator = "system-uuid")
+	//@GenericGenerator(name = "system-uuid", strategy = "org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
+	@Column(length=36)
+	protected String id;
 	/**
 	 * 
 	 */

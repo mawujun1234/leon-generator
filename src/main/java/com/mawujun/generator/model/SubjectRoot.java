@@ -26,11 +26,12 @@ public class SubjectRoot {
 	//private String sequenceName;
 	//private boolean hasResultMap;//是组件关联的时候
 	
-	private IDGenEnum idGenEnum;
+	private IDGenEnum idGenEnum=IDGenEnum.none;
 	private Class<?> idClass;
-	private String idColumn;
-	private String idProperty;
-	private String idSequenceName;//序列化的时候的名字
+	private boolean compositeId=false;//判断是否是复合主键
+	private String[] idColumns;
+	private String[] idPropertys;
+	private String idSequenceName;//序列化的时候的名字,如oralce、DB、SAP DB、PostgerSQL、McKoi中的sequence。MySQL这种不支持sequence的数据库则不行（可以使用identity）。
 	
 	
 	
@@ -62,6 +63,30 @@ public class SubjectRoot {
 	
 	public String getUncapitalizeSimpleClassName() {
 		return this.uncapitalizeSimpleClassName;
+	}
+
+	public boolean isCompositeId() {
+		return compositeId;
+	}
+
+	public void setCompositeId(boolean isCompositeId) {
+		this.compositeId = isCompositeId;
+	}
+
+	public String[] getIdColumns() {
+		return idColumns;
+	}
+
+	public void setIdColumns(String[] idColumns) {
+		this.idColumns = idColumns;
+	}
+
+	public String[] getIdPropertys() {
+		return idPropertys;
+	}
+
+	public void setIdPropertys(String[] idPropertys) {
+		this.idPropertys = idPropertys;
 	}
 
 	public String getClassName() {
@@ -145,21 +170,7 @@ public class SubjectRoot {
 		this.idSequenceName = idSequenceName;
 	}
 
-	public String getIdColumn() {
-		return idColumn;
-	}
-
-	public void setIdColumn(String idColumn) {
-		this.idColumn = idColumn;
-	}
-
-	public String getIdProperty() {
-		return idProperty;
-	}
-
-	public void setIdProperty(String idProperty) {
-		this.idProperty = idProperty;
-	}
+	
 
 	public Class<?> getIdClass() {
 		return idClass;

@@ -4,13 +4,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
@@ -187,47 +190,81 @@ public class JavaEntityMetaDataService {
 			}
 			propertyColumn.setClazz(field.getType());
 			
+			//表示可嵌入类的组合主键
+			EmbeddedId embeddedId=field.getAnnotation(EmbeddedId.class);
+			if(embeddedId!=null) {
+				Field[] embeddedIdFields=ReflectUtils.getAllDeclaredFields(field.getType());
+				String[] idColumns=new String[embeddedIdFields.length];
+				String[] idPropertys=new String[embeddedIdFields.length];
+				
+				for(int i=0;i<embeddedIdFields.length;i++) {
+					Field field_temp=embeddedIdFields[i];
+					idColumns[i]=StringUtils.camelToUnderline(field_temp.getName());
+					idPropertys[i]=field_temp.getName();
+				}
+				propertyColumn.setCompositeId(true);
+				propertyColumn.setIdProperty(true);
+				
+				root.setCompositeId(true);
+				root.setIdColumns(idColumns);
+				root.setIdPropertys(idPropertys);
+				root.setIdClass(field.getType());
+				root.setIdGenEnum(IDGenEnum.none);
+				root.setIdSequenceName(null);
+			} 
 			Id id=field.getAnnotation(Id.class);
 			if(id!=null){
-				propertyColumn.setNullable(false);
-				propertyColumn.setUnique(true);
-				propertyColumn.setInsertable(true);
-				propertyColumn.setUpdatable(false);
-				
-				propertyColumn.setId(true);
-				//复核主键怎么办？还要测试下
-				root.setIdColumn(propertyColumn.getColumn());
-				root.setIdProperty(propertyColumn.getProperty());
-				root.setIdClass(field.getType());
-				//
-				GeneratedValue generatedValue=field.getAnnotation(GeneratedValue.class);
-				if(generatedValue!=null) {
-					GenerationType strategy=generatedValue.strategy();
-					if(strategy==GenerationType.SEQUENCE) {
-						propertyColumn.setIdGenEnum(IDGenEnum.sequence);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-						SequenceGenerator sequenceGenerator=field.getAnnotation(SequenceGenerator.class);
-						root.setIdSequenceName(sequenceGenerator.sequenceName());
-					} else if(strategy==GenerationType.IDENTITY) {
-						propertyColumn.setIdGenEnum(IDGenEnum.identity);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-					} else if(strategy==GenerationType.TABLE) {
-						propertyColumn.setIdGenEnum(IDGenEnum.table);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-					} else {
-						propertyColumn.setIdGenEnum(IDGenEnum.uuid);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-					}
-				} else {
-					if(field.getType()==String.class) {
-						propertyColumn.setIdGenEnum(IDGenEnum.assigned_str);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-					} else {
-						propertyColumn.setIdGenEnum(IDGenEnum.assigned_long);
-						root.setIdGenEnum(propertyColumn.getIdGenEnum());
-					} 
+				//有可能是复合主键，也有可能是单主键
+				IdClass idClass=(IdClass)clazz.getAnnotation(IdClass.class);
+				if(idClass!=null) {
+					propertyColumn.setNullable(false);
+					propertyColumn.setUnique(false);
+					propertyColumn.setInsertable(true);
+					propertyColumn.setUpdatable(true);
+					sdfsdfsdf
 					
+				} else {
+					propertyColumn.setNullable(false);
+					propertyColumn.setUnique(true);
+					propertyColumn.setInsertable(true);
+					propertyColumn.setUpdatable(false);
+					
+					propertyColumn.setIdProperty(true);
+					//复核主键怎么办？还要测试下
+					root.setIdColumns(new String[] {propertyColumn.getColumn()});
+					root.setIdPropertys(new String[] {propertyColumn.getProperty()});
+					root.setIdClass(field.getType());
+					//
+					GeneratedValue generatedValue=field.getAnnotation(GeneratedValue.class);
+					if(generatedValue!=null) {
+						GenerationType strategy=generatedValue.strategy();
+						if(strategy==GenerationType.SEQUENCE) {
+							propertyColumn.setIdGenEnum(IDGenEnum.sequence);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+							SequenceGenerator sequenceGenerator=field.getAnnotation(SequenceGenerator.class);
+							root.setIdSequenceName(sequenceGenerator.sequenceName());
+						} else if(strategy==GenerationType.IDENTITY) {
+							propertyColumn.setIdGenEnum(IDGenEnum.identity);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+						} else if(strategy==GenerationType.TABLE) {
+							propertyColumn.setIdGenEnum(IDGenEnum.table);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+						} else {
+							propertyColumn.setIdGenEnum(IDGenEnum.uuid);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+						}
+					} else {
+						if(field.getType()==String.class) {
+							propertyColumn.setIdGenEnum(IDGenEnum.assigned_str);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+						} else {
+							propertyColumn.setIdGenEnum(IDGenEnum.assigned_long);
+							root.setIdGenEnum(propertyColumn.getIdGenEnum());
+						} 
+						
+					}
 				}
+	
 				
 			} else {
 				propertyColumn.setIdGenEnum(IDGenEnum.none);

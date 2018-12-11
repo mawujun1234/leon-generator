@@ -15,6 +15,8 @@ import com.mawujun.generator.model.SubjectRoot;
 
 import test.mawujun.generator.model.City;
 import test.mawujun.generator.model.City2;
+import test.mawujun.generator.model.CoplxId1;
+import test.mawujun.generator.model.CoplxId1Entity;
 
 
 
@@ -304,6 +306,47 @@ public class JavaEntityMetaDataServiceTest {
 		assertEquals("Sex", sex.getSimpleClassName());
 		assertEquals(false,sex.isId());
 		assertEquals(IDGenEnum.none,sex.getIdGenEnum());
+	}
+	/**
+	 * 测试复核主键
+	 */
+	@Test
+	public void test3 (){
+		//System.out.println(Sex.class.isEnum());
+		SubjectRoot root=javaEntityMetaDataService.getClassProperty(CoplxId1Entity.class);
+		Assert.assertEquals("t_coplxid1entity", root.getTableName());
+		Assert.assertEquals("CoplxId1Entity", root.getSimpleClassName());
+		Assert.assertEquals("coplxId1Entity", root.getUncapitalizeSimpleClassName());
+		Assert.assertEquals("test.mawujun.generator.model.CoplxId1Entity", root.getClassName());
+		Assert.assertEquals("coplxId1Entity", root.getAlias());
+		Assert.assertEquals("test.mawujun.generator.model", root.getBasepackage());
+		
+		PropertyColumn name=root.getPropertyColumn("name");
+		assertNotNull(name);
+		assertEquals("name", name.getProperty());
+		assertEquals("name", name.getColumn());
+		assertEquals("name", name.getLabel());
+		assertEquals(null, name.getComment());
+		assertEquals(null, name.getDefaultValue());
+		assertEquals(255, name.getLength());
+		assertEquals(0, name.getPrecision());
+		assertEquals(0, name.getScale());
+		assertEquals(false, name.isUnique());
+		assertEquals(true, name.isNullable());
+		assertEquals(true, name.isInsertable());
+		assertEquals(true, name.isUpdatable());
+		assertEquals(false, name.getIsEnum());
+		assertEquals("java.lang", name.getBasepackage());
+		assertEquals("java.lang.String", name.getClassName());
+		assertEquals("String", name.getSimpleClassName());
+		assertEquals(false,name.isId());
+		assertEquals(IDGenEnum.none,name.getIdGenEnum());
+		
+		assertEquals(CoplxId1.class,root.getIdClass());
+		assertEquals("id", root.getIdProperty());
+		assertEquals("id", root.getIdColumn());
+		assertEquals(null, root.getIdSequenceName());
+		
 	}
 
 }

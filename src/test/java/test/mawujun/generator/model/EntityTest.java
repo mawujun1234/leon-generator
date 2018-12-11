@@ -1,4 +1,4 @@
-package test.mawujun.generator;
+package test.mawujun.generator.model;
 
 import java.util.Date;
 

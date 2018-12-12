@@ -7,12 +7,15 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
+import org.apache.ibatis.type.Alias;
+
 import lombok.Data;
 
 /**
 * @author mawujun 16064988
 * @createDate ：2018年12月4日 上午11:45:19
 */
+@Alias("coplxId2Entity")
 @Entity
 @Table(name="t_coplxid2entity")
 @IdClass(CoplxId2.class)

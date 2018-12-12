@@ -34,8 +34,8 @@ public class PropertyColumn {
 	private String simpleClassName;//其实不用定义这个属性，其实是可以直接写get方法，下同
 //	private String jsType;
 	
-	private boolean idProperty;//是否是id的属性
-	private boolean compositeId=false;
+	private boolean isId;//是否是id的属性
+	private boolean isCompositeId=false;
 	private IDGenEnum idGenEnum=IDGenEnum.none;
 	
 	
@@ -104,21 +104,21 @@ public class PropertyColumn {
 		//System.out.println(this.jsType);
 	}
 
-	public boolean isIdProperty() {
-		return idProperty;
+	public boolean getIsId() {
+		return isId;
 	}
 
-	public void setIdProperty(boolean idProperty) {
-		this.idProperty = idProperty;
+	public void setIsId(boolean isID) {
+		this.isId = isID;
 	}
 
 	public boolean isCompositeId() {
-		return compositeId;
+		return isCompositeId;
 	}
 
 
-	public void setCompositeId(boolean compositeId) {
-		this.compositeId = compositeId;
+	public void setIsCompositeId(boolean isCompositeId) {
+		this.isCompositeId = isCompositeId;
 	}
 
 	public String getColumn() {

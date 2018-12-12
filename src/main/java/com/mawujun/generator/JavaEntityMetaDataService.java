@@ -199,19 +199,21 @@ public class JavaEntityMetaDataService {
 				
 				for(int i=0;i<embeddedIdFields.length;i++) {
 					Field field_temp=embeddedIdFields[i];
-					idColumns[i]=StringUtils.camelToUnderline(field_temp.getName());
+					idColumns[i]=nameStrategy.propertyToColumnName(field_temp.getName());
 					idPropertys[i]=field_temp.getName();
 				}
-				propertyColumn.setCompositeId(true);
-				propertyColumn.setIdProperty(true);
 				
-				root.setCompositeId(true);
+				propertyColumn.setIsId(true);
+				propertyColumn.setIsCompositeId(true);
+				
+				root.setIsCompositeId(true);
 				root.setIdColumns(idColumns);
 				root.setIdPropertys(idPropertys);
 				root.setIdClass(field.getType());
 				root.setIdGenEnum(IDGenEnum.none);
 				root.setIdSequenceName(null);
 			} 
+			//是id主键
 			Id id=field.getAnnotation(Id.class);
 			if(id!=null){
 				//有可能是复合主键，也有可能是单主键
@@ -221,7 +223,16 @@ public class JavaEntityMetaDataService {
 					propertyColumn.setUnique(false);
 					propertyColumn.setInsertable(true);
 					propertyColumn.setUpdatable(true);
-					sdfsdfsdf
+					
+					propertyColumn.setIsId(true);
+					propertyColumn.setIsCompositeId(true);
+					
+					root.setIsCompositeId(true);
+					root.addIdColumn(propertyColumn.getColumn());
+					root.addIdProperty(propertyColumn.getProperty());
+					root.setIdClass(idClass.value());
+					root.setIdGenEnum(IDGenEnum.none);
+					root.setIdSequenceName(null);
 					
 				} else {
 					propertyColumn.setNullable(false);
@@ -229,11 +240,15 @@ public class JavaEntityMetaDataService {
 					propertyColumn.setInsertable(true);
 					propertyColumn.setUpdatable(false);
 					
-					propertyColumn.setIdProperty(true);
-					//复核主键怎么办？还要测试下
+					propertyColumn.setIsCompositeId(false);
+					propertyColumn.setIsId(true);
+					
+					root.setIsCompositeId(false);
 					root.setIdColumns(new String[] {propertyColumn.getColumn()});
 					root.setIdPropertys(new String[] {propertyColumn.getProperty()});
 					root.setIdClass(field.getType());
+					root.setIdGenEnum(IDGenEnum.none);
+					root.setIdSequenceName(null);
 					//
 					GeneratedValue generatedValue=field.getAnnotation(GeneratedValue.class);
 					if(generatedValue!=null) {
@@ -263,12 +278,9 @@ public class JavaEntityMetaDataService {
 						} 
 						
 					}
-				}
-	
-				
-			} else {
-				propertyColumn.setIdGenEnum(IDGenEnum.none);
+				}	
 			}
+			
 			
 			NotNull notNull=field.getAnnotation(NotNull.class);
 			if(notNull!=null){

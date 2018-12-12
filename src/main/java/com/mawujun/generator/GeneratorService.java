@@ -88,7 +88,8 @@ public class GeneratorService {
 	 
 		}
 		//ftl_file_manes=files;
-		cfg = new Configuration();
+		//cfg = new Configuration();
+		cfg = new Configuration(Configuration.getVersion());
 		cfg.setEncoding(Locale.CHINA, "UTF-8");
 		//cfg.setEncoding(Locale.CHINA, "UTF-8");
 		
@@ -121,7 +122,7 @@ public class GeneratorService {
 		cfg.setTemplateLoader(mtl);
 		
 		
-		cfg.setObjectWrapper(new DefaultObjectWrapper());
+		cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.getVersion()));
 		
 		
 	}
@@ -228,6 +229,8 @@ public class GeneratorService {
 //		Class clazz=Class.forName(className);
 //		return generatorFileName(clazz,ftl);
 //	}
+	
+
 
 	/**
 	 * 
@@ -243,21 +246,20 @@ public class GeneratorService {
 	 * @throws SecurityException 
 	 * @throws NoSuchMethodException 
 	 */
-	public  void generatorAllFile(Class clazz) throws IOException, ClassNotFoundException, TemplateException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public  void generatorAllFile(Class... clazzs) throws IOException, ClassNotFoundException, TemplateException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		initConfiguration();
-		/* 创建数据模型 */
-		SubjectRoot root =javaEntityMetaDataService.initClassProperty(clazz);
-//		if(this.getExtenConfig()!=null){
-//			root.setExtenConfig(this.getExtenConfig());
-//		}
-//		
-		
 		String output=PropertiesUtils.load("generator.properties").getProperty("output");
 		FileUtils.createDir(output);
+		
+		for(Class cls:clazzs) {
+			/* 创建数据模型 */
+			SubjectRoot root =javaEntityMetaDataService.initClassProperty(cls);
 
-		for (FtlFileInfo ftlFile : ftl_file_manes) {	
-			this.generatorFile(clazz,ftlFile,output);	
+			for (FtlFileInfo ftlFile : ftl_file_manes) {	
+				this.generatorFile(cls,ftlFile,output);	
+			}
 		}
+
 		//打开文件夹
 		Runtime.getRuntime().exec("cmd.exe /c start "+output);
 	}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mawujun.generator.IDGenEnum;
@@ -28,18 +29,12 @@ public class SubjectRoot {
 	
 	private IDGenEnum idGenEnum=IDGenEnum.none;
 	private Class<?> idClass;
-	private boolean compositeId=false;//判断是否是复合主键
+	private String idClassName;//自动
+	private String idSimpleClassName;//自动
+	private boolean isCompositeId=false;//判断是否是复合主键
 	private String[] idColumns;
 	private String[] idPropertys;
 	private String idSequenceName;//序列化的时候的名字,如oralce、DB、SAP DB、PostgerSQL、McKoi中的sequence。MySQL这种不支持sequence的数据库则不行（可以使用identity）。
-	
-	
-	
-	//private String jsPackage;//用于用表生成的时候指定的
-	//private Map<Object,Object> extenConfig=new HashMap<Object,Object>();
-	//private Object extenConfig=new Object();
-	
-	//private ExtenConfig extenConfig=new ExtenConfig();
 
 	List<PropertyColumn> propertyColumns=new ArrayList<PropertyColumn>();
 	Map<String,PropertyColumn> propertyColumns_map=new HashMap<String,PropertyColumn>();
@@ -50,6 +45,28 @@ public class SubjectRoot {
 	public void setSimpleClassName(String simpleClassName) {
 		this.simpleClassName = simpleClassName;
 		this.uncapitalizeSimpleClassName=StringUtils.uncapitalize(this.getSimpleClassName());;
+	}
+	
+	public void setIdClass(Class<?> idClass) {
+		this.idClass = idClass;
+		this.idSimpleClassName=idClass.getSimpleName();
+		this.idClassName=idClass.getName();
+	}
+
+	
+	public void addIdColumn(String idColumn) {
+		if(this.idColumns==null) {
+			this.idColumns=new String[]{idColumn};
+			return;
+		}
+		this.idColumns=ArrayUtils.add(this.idColumns, idColumn);
+	}
+	public void addIdProperty(String idProperty) {
+		if(this.idPropertys==null) {
+			this.idPropertys=new String[]{idProperty};
+			return;
+		}
+		this.idPropertys=ArrayUtils.add(this.idPropertys, idProperty);
 	}
 	
 	public PropertyColumn getPropertyColumn(String property) {
@@ -65,12 +82,12 @@ public class SubjectRoot {
 		return this.uncapitalizeSimpleClassName;
 	}
 
-	public boolean isCompositeId() {
-		return compositeId;
+	public boolean getIsCompositeId() {
+		return isCompositeId;
 	}
 
-	public void setCompositeId(boolean isCompositeId) {
-		this.compositeId = isCompositeId;
+	public void setIsCompositeId(boolean isIcompositeId) {
+		this.isCompositeId = isIcompositeId;
 	}
 
 	public String[] getIdColumns() {
@@ -149,6 +166,15 @@ public class SubjectRoot {
 	public void setIdGenEnum(IDGenEnum idGenEnum) {
 		this.idGenEnum = idGenEnum;
 	}
+	
+
+	public String getIdClassName() {
+		return idClassName;
+	}
+
+	public String getIdSimpleClassName() {
+		return idSimpleClassName;
+	}
 
 	public Map<String, PropertyColumn> getPropertyColumns_map() {
 		return propertyColumns_map;
@@ -176,10 +202,7 @@ public class SubjectRoot {
 		return idClass;
 	}
 
-	public void setIdClass(Class<?> idClass) {
-		this.idClass = idClass;
-	}
-
+	
 
 
 

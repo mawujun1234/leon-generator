@@ -39,10 +39,10 @@ public class ${simpleClassName}Controller {
 	 */
 	@RequestMapping("/${simpleClassNameFirstLower}/list")
 	@ResponseBody
-	public List<${simpleClassName}> list() {
-		Cnd cnd=Cnd.select().andEquals(M.${simpleClassName}.parent.id, "root".equals(id)?null:id);
-		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.query(cnd);
-		return ${simpleClassNameFirstLower}es;
+	public R list() {//括号里面写参数
+		Params params=Params.of();//Params.of().like(M.${simpleClassName}.name, "test");
+		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listByMap(params);
+		return R.ok(city${simpleClassNameFirstLower}es);
 	}
 
 	/**
@@ -53,51 +53,62 @@ public class ${simpleClassName}Controller {
 	 * @param userName
 	 * @return
 	 */
-	@RequestMapping("/${simpleClassNameFirstLower}/query")
+	@RequestMapping("/${simpleClassNameFirstLower}/listPage")
 	@ResponseBody
-	public PageInfo query(Integer start,Integer limit,String sampleName){
-		PageInfo page=PageInfo.getInstance(start,limit);//.addParam(M.${simpleClassName}.sampleName, "%"+sampleName+"%");
-		return ${simpleClassNameFirstLower}Service.queryPage(page);
+	public R listPage(Integer start,Integer limit){
+		//PageInfo<${simpleClassName}> pageinfo=PageInfo.of(start,limit).eq(M.${simpleClassName}.name, "宁波");
+		PageInfo<${simpleClassName}> pageinfo=PageInfo.of(start,limit);
+		${simpleClassNameFirstLower}Service.listPageByPageInfo(pageinfo);
+		return R.ok().data(pageinfo);
 	}
 
-	@RequestMapping("/${simpleClassNameFirstLower}/query")
+	@RequestMapping("/${simpleClassNameFirstLower}/listAll")
 	@ResponseBody
-	public List<${simpleClassName}> query() {	
-		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.queryAll();
-		return ${simpleClassNameFirstLower}es;
+	public R listAll() {	
+		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listAll();
+		return R.ok().data(${simpleClassNameFirstLower}es);
 	}
 	
 
-	@RequestMapping("/${simpleClassNameFirstLower}/load")
-	public ${simpleClassName} load(${idClassName} id) {
-		return ${simpleClassNameFirstLower}Service.get(id);
+	@RequestMapping("/${simpleClassNameFirstLower}/get")
+	@ResponseBody
+	public R get(${idClassName} id) {
+		${simpleClassName} ${simpleClassNameFirstLower}=${simpleClassNameFirstLower}Service.getById(id);
+		return R.ok().data(${simpleClassNameFirstLower});
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/create")
 	@ResponseBody
-	public ${simpleClassName} create(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+	public R create(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.create(${simpleClassNameFirstLower});
-		return ${simpleClassNameFirstLower};
+		return R.ok().data(${simpleClassNameFirstLower});
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/update")
 	@ResponseBody
-	public  ${simpleClassName} update(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+	public  R update(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.update(${simpleClassNameFirstLower});
-		return ${simpleClassNameFirstLower};
+		return R.ok().data(${simpleClassNameFirstLower});
 	}
 	
-	@RequestMapping("/${simpleClassNameFirstLower}/deleteById")
+	@RequestMapping("/${simpleClassNameFirstLower}/removeById")
 	@ResponseBody
-	public ${idClassName} deleteById(${idClassName} id) {
-		${simpleClassNameFirstLower}Service.deleteById(id);
-		return id;
+	public R removeById(${idClassName} id) {
+		${simpleClassNameFirstLower}Service.removeById(id);
+		return R.ok().data(id);
 	}
 	
-	@RequestMapping("/${simpleClassNameFirstLower}/destroy")
+	@RequestMapping("/${simpleClassNameFirstLower}/removeByIds")
 	@ResponseBody
-	public ${simpleClassName} destroy(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
-		${simpleClassNameFirstLower}Service.delete(${simpleClassNameFirstLower});
+	public R removeByIds(String[] ids) {
+		${simpleClassNameFirstLower}Service.removeByIds(ids);
+		return R.ok().data(ids);
+	}
+	
+	@RequestMapping("/${simpleClassNameFirstLower}/remove")
+	@ResponseBody
+	public ${simpleClassName} remove(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+		${simpleClassNameFirstLower}Service.remove(${simpleClassNameFirstLower});
 		return ${simpleClassNameFirstLower};
 	}
 	

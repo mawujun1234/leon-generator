@@ -1,6 +1,6 @@
   
 <#assign simpleClassNameFirstLower = simpleClassName?uncap_first> 
-package ${basepackage};
+package ${basepackage}.controller;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -15,7 +15,7 @@ import com.mawujun.repository.utils.PageInfo;
 import com.mawujun.repository.utils.Params;
 
 import ${basepackage}.${simpleClassName};
-import ${basepackage}.${simpleClassName}Service;
+import ${basepackage}.service.${simpleClassName}Service;
 
 <#if isCompositeId==true>
 	import ${idSimpleClassName};

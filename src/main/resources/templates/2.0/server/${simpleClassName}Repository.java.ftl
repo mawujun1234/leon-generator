@@ -1,4 +1,4 @@
-package ${basepackage};
+package ${basepackage}.repository;
 
 import org.springframework.stereotype.Repository;
 import java.util.UUID;

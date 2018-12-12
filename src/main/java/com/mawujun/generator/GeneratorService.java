@@ -28,7 +28,10 @@ import freemarker.template.TemplateException;
 import freemarker.template.utility.NullArgumentException;
 
 /**
- * 
+ * * com.mawujun.model:里面放的是模型类
+	 * com.mawujun.controller:里面放的是congtroller
+	 * com.mawujun.service:
+	 * com.mawujun.repository:
  * @author mawujun
  *
  */
@@ -37,7 +40,27 @@ public class GeneratorService {
 	private JavaEntityMetaDataService javaEntityMetaDataService=new JavaEntityMetaDataService();
 	private Configuration cfg=null;
 	List<FtlFileInfo> ftl_file_manes=new ArrayList<FtlFileInfo>();//ftl文件的名称
+	
+	/**
+	 * 文件生成模式1
+	 * com.mawujun.model:里面放的是模型类
+	 * com.mawujun.controller:里面放的是congtroller
+	 * com.mawujun.service:
+	 * com.mawujun.repository:
+	 */
+	public static final String file_model_one="file_model_one";
 
+	private String basepackage;
+	/**
+	 * 支持
+	 * 1：classpath:/template/2.0
+	 * 2：classpath*:/template/2.0
+	 * 3：绝对路径
+	 * 4：相对路径：相对本项目根目录的路径
+	 */
+	private String ftldir;//再classpath路径下的ftl文件
+	private String outputdir;//输出的目录
+	
 	//额外的配置选项
 	//private ExtenConfig extenConfig;
 	
@@ -63,8 +86,16 @@ public class GeneratorService {
 //		if(reses==null || reses.length==0){
 //			return ;
 //		}
-		String classpathftldir=PropertiesUtils.load("generator.properties").getProperty("classpathftldir");
-		List<File> files=FileUtils.findFiles(FileUtils.getCurrentClassPath(this)+classpathftldir, "*.ftl");
+		if(ftldir==null) {
+			ftldir=PropertiesUtils.load("generator.properties").getProperty("ftldir");
+		}
+		if(ftldir==null) {
+			throw new RuntimeException("ftldir未指定，可以通过代码指定。也可以通过generator.properties中的ftldir属性指定。");
+		}
+		if() {
+			支持4钟路径
+		}
+		List<File> files=FileUtils.findFiles(FileUtils.getCurrentClassPath(this)+ftldir, "*.ftl");
 		//这表明，没有编写自己的模板，这样的话就去找默认的模板，就是在jar中的模板
 		if(files==null || files.size()==0){
 			
@@ -72,11 +103,11 @@ public class GeneratorService {
 			//GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()获取jar文件
 			//因为是开发环境，leon-generator是直接存在的，所以直接到leon-generator中获取默认的模板文件了
 			//http://blog.csdn.net/zyj8170/article/details/5599988
-			String path = GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()+classpathftldir;
+			String path = GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()+ftldir;
 			files=FileUtils.findFiles(path, "*.ftl");
 			
 			//如果是直接依赖于leon-generator.jar,而没有leon-generator这个项目存在的时候，要先获取到ftl文件所在的jar，然后通过
-			//JarFileSearch专门搜索这个jar中的ftl文件，然后读取出来，然后再写到当前项目的classpath中，加上classpathftldir的前缀
+			//JarFileSearch专门搜索这个jar中的ftl文件，然后读取出来，然后再写到当前项目的classpath中，加上ftldir的前缀
 			//然后再把这些模板文件读取出来，用来生成代码。
 			
 			
@@ -214,6 +245,9 @@ public class GeneratorService {
 	private  String generatorFileName(Class clazz,String ftl) throws ClassNotFoundException, TemplateException, IOException  {
 		
 		SubjectRoot root =javaEntityMetaDataService.getClassProperty(clazz);
+		if(basepackage!=null) {
+			root.setBasepackage(basepackage);
+		}
 //		if(this.getExtenConfig()!=null){
 //			root.setExtenConfig(this.getExtenConfig());
 //		}
@@ -248,20 +282,22 @@ public class GeneratorService {
 	 */
 	public  void generatorAllFile(Class... clazzs) throws IOException, ClassNotFoundException, TemplateException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		initConfiguration();
-		String output=PropertiesUtils.load("generator.properties").getProperty("output");
-		FileUtils.createDir(output);
+		if(outputdir==null) {
+			outputdir=PropertiesUtils.load("generator.properties").getProperty("outputdir");
+		}
+		FileUtils.createDir(outputdir);
 		
 		for(Class cls:clazzs) {
 			/* 创建数据模型 */
 			SubjectRoot root =javaEntityMetaDataService.initClassProperty(cls);
 
 			for (FtlFileInfo ftlFile : ftl_file_manes) {	
-				this.generatorFile(cls,ftlFile,output);	
+				this.generatorFile(cls,ftlFile,outputdir);	
 			}
 		}
 
 		//打开文件夹
-		Runtime.getRuntime().exec("cmd.exe /c start "+output);
+		Runtime.getRuntime().exec("cmd.exe /c start "+outputdir);
 	}
 	/**
 	 * 
@@ -289,14 +325,17 @@ public class GeneratorService {
 		
 		String fileName=this.generatorFileName(clazz, ftlfile.getName());
 		//按照模板的目录结构生成
-		String classpathftldir=PropertiesUtils.load("generator.properties").getProperty("classpathftldir");
+		if(ftldir==null) {
+			ftldir=PropertiesUtils.load("generator.properties").getProperty("ftldir");
+
+		}
 		String parentpath=ftlfile.getParentpath();
 		
 		parentpath=parentpath.replaceAll("\\\\", "/");
-		if(parentpath.indexOf(classpathftldir)==-1){
+		if(parentpath.indexOf(ftldir)==-1){
 			throw new IllegalPathStateException("路径错误，请注意是window还是linux平台");
 		}
-		String ftlfilepath=parentpath.substring(parentpath.indexOf(classpathftldir)+classpathftldir.length());//   .replaceAll(classpathftldir, "");
+		String ftlfilepath=parentpath.substring(parentpath.indexOf(ftldir)+ftldir.length());//   .replaceAll(ftldir, "");
 		
 		
 		String fileDir=dirPath+ftlfilepath;
@@ -370,6 +409,31 @@ public class GeneratorService {
 //	public void setExtenConfig(ExtenConfig extenConfig) {
 //		this.extenConfig = extenConfig;
 //	}
-	
+
+	public String getBasepackage() {
+		return basepackage;
+	}
+
+	public void setBasepackage(String basepackage) {
+		this.basepackage = basepackage;
+	}
+
+
+	public String getOutputdir() {
+		return outputdir;
+	}
+
+	public void setOutputdir(String outputdir) {
+		this.outputdir = outputdir;
+	}
+
+	public String getFtldir() {
+		return ftldir;
+	}
+
+	public void setFtldir(String ftldir) {
+		this.ftldir = ftldir;
+	}
+
 
 }

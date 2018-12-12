@@ -40,7 +40,7 @@ public class JavaEntityMetaDataService {
 
 	NameStrategy nameStrategy=new DefaultNameStrategy();
 	
-	String id_name="id";//默认的id名称
+	//String id_name="id";//默认的id名称
 	
 	private static Map<String,SubjectRoot> cache=new HashMap<String,SubjectRoot>();
 	
@@ -125,7 +125,11 @@ public class JavaEntityMetaDataService {
 
 		root.setSimpleClassName(clazz.getSimpleName());
 		root.setClassName(clazz.getName());
+		
 		root.setBasepackage(clazz.getPackage().getName());
+		if(root.getBasepackage().lastIndexOf('.')!=-1) {
+			root.setBasepackage(root.getBasepackage().substring(0, root.getBasepackage().lastIndexOf('.')));
+		}
 		//root.setIdType("String");//默认是String
 		//root.setIdType(idClass.getSimpleName());
 		

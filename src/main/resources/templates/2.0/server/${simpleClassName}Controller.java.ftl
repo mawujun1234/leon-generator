@@ -9,11 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.mawujun.utils.page.PageRequest;
-import com.mawujun.utils.page.QueryResult;
-import com.mawujun.controller.spring.mvc.json.JsonConfigHolder;
+
+import com.mawujun.mvc.R;
 import com.mawujun.repository.utils.PageInfo;
-import com.mawujun.utils.M;
+import com.mawujun.repository.utils.Params;
 
 import ${basepackage}.${simpleClassName};
 import ${basepackage}.${simpleClassName}Service;
@@ -42,7 +41,7 @@ public class ${simpleClassName}Controller {
 	public R list() {//括号里面写参数
 		Params params=Params.of();//Params.of().like(M.${simpleClassName}.name, "test");
 		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listByMap(params);
-		return R.ok(city${simpleClassNameFirstLower}es);
+		return R.ok(${simpleClassNameFirstLower}es);
 	}
 
 	/**

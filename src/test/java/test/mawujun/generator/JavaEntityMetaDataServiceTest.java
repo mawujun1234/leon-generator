@@ -35,7 +35,7 @@ public class JavaEntityMetaDataServiceTest {
 		Assert.assertEquals("city", root.getUncapitalizeSimpleClassName());
 		Assert.assertEquals("test.mawujun.generator.model.City", root.getClassName());
 		Assert.assertEquals("city", root.getAlias());
-		Assert.assertEquals("test.mawujun.generator.model", root.getBasepackage());
+		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		//Assert.assertEquals("", root.getIdType());
 		
 		
@@ -189,7 +189,7 @@ public class JavaEntityMetaDataServiceTest {
 		Assert.assertEquals("city2", root.getUncapitalizeSimpleClassName());
 		Assert.assertEquals("test.mawujun.generator.model.City2", root.getClassName());
 		Assert.assertEquals("city2", root.getAlias());
-		Assert.assertEquals("test.mawujun.generator.model", root.getBasepackage());
+		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		//Assert.assertEquals("", root.getIdType());
 		
 		
@@ -321,7 +321,7 @@ public class JavaEntityMetaDataServiceTest {
 		Assert.assertEquals("coplxId1Entity", root.getUncapitalizeSimpleClassName());
 		Assert.assertEquals("test.mawujun.generator.model.CoplxId1Entity", root.getClassName());
 		Assert.assertEquals("coplxId1Entity", root.getAlias());
-		Assert.assertEquals("test.mawujun.generator.model", root.getBasepackage());
+		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		
 		PropertyColumn name=root.getPropertyColumn("name");
 		assertNotNull(name);
@@ -377,7 +377,7 @@ public class JavaEntityMetaDataServiceTest {
 		Assert.assertEquals("coplxId2Entity", root.getUncapitalizeSimpleClassName());
 		Assert.assertEquals("test.mawujun.generator.model.CoplxId2Entity", root.getClassName());
 		Assert.assertEquals("coplxId2Entity", root.getAlias());
-		Assert.assertEquals("test.mawujun.generator.model", root.getBasepackage());
+		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		
 		PropertyColumn name=root.getPropertyColumn("name");
 		assertNotNull(name);

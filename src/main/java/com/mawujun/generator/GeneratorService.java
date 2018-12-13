@@ -1,11 +1,13 @@
 package com.mawujun.generator;
 
-import java.awt.geom.IllegalPathStateException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.Set;
 
 import com.mawujun.generator.model.FtlFileInfo;
 import com.mawujun.generator.model.SubjectRoot;
+import com.mawujun.generator.other.JarFileSearch;
 import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.file.FileUtils;
 import com.mawujun.utils.string.StringUtils;
@@ -59,6 +62,7 @@ public class GeneratorService {
 	 * 4：相对路径：相对本项目根目录的路径
 	 */
 	private String ftldir;//再classpath路径下的ftl文件
+	private String ftlpath;//ftldir去掉classpath等内容后的地址
 	private String outputdir;//输出的目录
 	
 	//额外的配置选项
@@ -92,32 +96,67 @@ public class GeneratorService {
 		if(ftldir==null) {
 			throw new RuntimeException("ftldir未指定，可以通过代码指定。也可以通过generator.properties中的ftldir属性指定。");
 		}
-		if() {
-			支持4钟路径
+		
+		List<File> files=null;
+		if(ftldir.startsWith("classpath:")) {
+			ftlpath=ftldir.substring("classpath:".length());
+			files=FileUtils.findFiles(FileUtils.getClassRootPath(this)+ftlpath, "*.ftl");
+			
+		} else if(ftldir.startsWith("classpath*:")) {
+			ftlpath=ftldir.substring("classpath*:".length());
+			files=FileUtils.findFiles(FileUtils.getClassRootPath(this)+ftlpath, "*.ftl");
+			if(files==null || files.size()==0) {
+				//String basePath=this.getClass().getResource("").getPath().toString();
+				//GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()获取jar文件
+				//因为是开发环境，leon-generator是直接存在的，所以直接到leon-generator中获取默认的模板文件了
+				//String path = GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()+classpath;
+				//files=FileUtils.findFiles(path, "*.ftl");
+				
+				URL url=FileUtils.getJarPath(GeneratorService.class);
+				if("file".equals(url.getProtocol()) && url.getFile().indexOf(".jar!")==-1) {
+					File classpath_file=new File(url.getFile()+"/../../src/main/resources".replaceAll("\\\\/", File.separator)+ftlpath);
+					files=FileUtils.findFiles(classpath_file.getAbsolutePath(), "*.ftl");
+					
+					System.out.println(classpath_file);
+				} else {
+//					String jarpath=FileUtils.getJarAbstractPath(GeneratorService.class);
+//					//从jar中读取
+//					List<InputStream> list=JarFileSearch.searchFtl(jarpath, ".ftl");
+//					//把文件内容写到临时目录中
+//					System.getProperty("");
+//					String tempdirpath=FileUtils.getTempDirectoryPath();
+//					File file=new File(tempdirpath+ftlpath);
+//					if(!file.exists()) {
+//						file.mkdirs();
+//					}
+//					for(InputStream is:list) {
+//						FileOutputStream fot=new FileOutputStream(file)
+//						
+//					}
+					
+				}
+				
+				
+				//如果是直接依赖于leon-generator.jar,而没有leon-generator这个项目存在的时候，要先获取到ftl文件所在的jar，然后通过
+				//JarFileSearch专门搜索这个jar中的ftl文件，然后读取出来，然后再写到当前项目的classpath中，加上ftldir的前缀
+				//然后再把这些模板文件读取出来，用来生成代码。
+					
+//				
+//				String dir=FileUtils.getCurrentClassPath(this)+"../lib";
+//				ArrayList<InputStream> list=new ArrayList<InputStream>();
+//				JarFileSearch.searchFtl(dir, list);
+			}
+		} else {
+			//从绝对路径中获取
+			//从当前项目的相对路径中获取
+			ftlpath=ftldir;
+			files=FileUtils.findFiles(FileUtils.getProjectPath(this)+ftlpath, "*.ftl");
+			
 		}
-		List<File> files=FileUtils.findFiles(FileUtils.getCurrentClassPath(this)+ftldir, "*.ftl");
-		//这表明，没有编写自己的模板，这样的话就去找默认的模板，就是在jar中的模板
-		if(files==null || files.size()==0){
-			
-			//String basePath=this.getClass().getResource("").getPath().toString();
-			//GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()获取jar文件
-			//因为是开发环境，leon-generator是直接存在的，所以直接到leon-generator中获取默认的模板文件了
-			//http://blog.csdn.net/zyj8170/article/details/5599988
-			String path = GeneratorService.class.getProtectionDomain().getCodeSource().getLocation().getFile()+ftldir;
-			files=FileUtils.findFiles(path, "*.ftl");
-			
-			//如果是直接依赖于leon-generator.jar,而没有leon-generator这个项目存在的时候，要先获取到ftl文件所在的jar，然后通过
-			//JarFileSearch专门搜索这个jar中的ftl文件，然后读取出来，然后再写到当前项目的classpath中，加上ftldir的前缀
-			//然后再把这些模板文件读取出来，用来生成代码。
-			
-			
-//			
-//			String dir=FileUtils.getCurrentClassPath(this)+"../lib";
-//			ArrayList<InputStream> list=new ArrayList<InputStream>();
-//			JarFileSearch.searchFtl(dir, list);
-			
-	 
+		if(files==null || files.size()==0) {
+			throw new RuntimeException("没有找到ftl文件");
 		}
+		
 		//ftl_file_manes=files;
 		//cfg = new Configuration();
 		cfg = new Configuration(Configuration.getVersion());
@@ -324,22 +363,28 @@ public class GeneratorService {
 //		}
 		
 		String fileName=this.generatorFileName(clazz, ftlfile.getName());
-		//按照模板的目录结构生成
-		if(ftldir==null) {
-			ftldir=PropertiesUtils.load("generator.properties").getProperty("ftldir");
-
-		}
-		String parentpath=ftlfile.getParentpath();
+//		//按照模板的目录结构生成
+//		if(ftldir==null) {
+//			ftldir=PropertiesUtils.load("generator.properties").getProperty("ftldir");
+//
+//		}
+//		String parentpath=ftlfile.getParentpath();
+//		
+//		parentpath=parentpath.replaceAll("\\\\/", File.separator);
+//		if(parentpath.indexOf(ftldir)==-1){
+//			throw new IllegalPathStateException("路径错误，请注意是window还是linux平台");
+//		}
+//		String ftlfilepath=parentpath.substring(parentpath.indexOf(ftldir)+ftldir.length());//   .replaceAll(ftldir, "");
+//		
+//		
+//		String fileDir=dirPath+ftlfilepath;
+//		String filePath=dirPath+ftlfilepath+File.separatorChar+fileName;
 		
-		parentpath=parentpath.replaceAll("\\\\", "/");
-		if(parentpath.indexOf(ftldir)==-1){
-			throw new IllegalPathStateException("路径错误，请注意是window还是linux平台");
-		}
-		String ftlfilepath=parentpath.substring(parentpath.indexOf(ftldir)+ftldir.length());//   .replaceAll(ftldir, "");
 		
 		
-		String fileDir=dirPath+ftlfilepath;
-		String filePath=dirPath+ftlfilepath+File.separatorChar+fileName;
+		//生成文件的目录地址
+		String fileDir=dirPath+ftlpath;
+		String filePath=fileDir+File.separatorChar+fileName;
 		
 		File dir=new File(fileDir);
 		if(!dir.exists()){

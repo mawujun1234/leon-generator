@@ -22,9 +22,6 @@ import javax.validation.constraints.Size;
 
 import org.apache.ibatis.type.Alias;
 
-import com.mawujun.generator.model.ColDefinition;
-import com.mawujun.generator.model.PropertyColumn;
-import com.mawujun.generator.model.SubjectRoot;
 import com.mawujun.generator.other.DefaultNameStrategy;
 import com.mawujun.generator.other.NameStrategy;
 import com.mawujun.utils.PropertiesUtils;
@@ -49,8 +46,11 @@ public class JavaEntityMetaDataService {
 		try {
 			PropertiesUtils aa = PropertiesUtils.load("generator.properties");
 			String className=aa.getProperty("nameStrategy");
-			Class clazz=Class.forName(className);
-			nameStrategy=(NameStrategy) clazz.newInstance();
+			if(com.mawujun.utils.StringUtils.hasText(className)) {
+				Class clazz=Class.forName(className);
+				nameStrategy=(NameStrategy) clazz.newInstance();
+			}
+			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -308,7 +308,7 @@ public class JavaEntityMetaDataService {
 				propertyColumn.setIsEnum(true);
 			}
 			
-			ColDefinition colDefinition=field.getAnnotation(ColDefinition.class);
+			ColDefine colDefinition=field.getAnnotation(ColDefine.class);
 			if(colDefinition!=null) {
 				if(StringUtils.hasText(colDefinition.defaultValue())) {
 					propertyColumn.setDefaultValue(colDefinition.defaultValue());

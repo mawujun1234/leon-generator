@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import com.mawujun.generator.IDGenEnum;
 import com.mawujun.generator.JavaEntityMetaDataService;
-import com.mawujun.generator.model.PropertyColumn;
-import com.mawujun.generator.model.SubjectRoot;
+import com.mawujun.generator.PropertyColumn;
+import com.mawujun.generator.SubjectRoot;
 
 import test.mawujun.generator.model.City;
 import test.mawujun.generator.model.City2;

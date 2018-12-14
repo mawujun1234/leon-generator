@@ -1,6 +1,4 @@
-package com.mawujun.generator.model;
-
-import com.mawujun.generator.IDGenEnum;
+package com.mawujun.generator;
 
 public class PropertyColumn {
 	private String column;//列名

@@ -3,7 +3,7 @@ package test.mawujun.generator;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import com.mawujun.generator.GeneratorService;
+import com.mawujun.generator.GeneratorCodeService;
 
 import freemarker.template.TemplateException;
 import test.mawujun.generator.model.City;
@@ -14,7 +14,7 @@ import test.mawujun.generator.model.City;
  *
  */
 public class GeneratorCode {
-	static GeneratorService generatorService=new GeneratorService();
+	static GeneratorCodeService generatorService=new GeneratorCodeService();
 
 	public static void main(String[] args) throws TemplateException, IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {	
 
@@ -28,7 +28,7 @@ public class GeneratorCode {
 //		aa.extjs_grid_createDelUpd_button = true;
 //		generatorService.setExtenConfig(aa);
 
-		generatorService.generatorAllFile(City.class);
+		generatorService.generator(City.class);
 
 	}
 	

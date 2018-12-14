@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.LogManager;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -25,50 +26,68 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mawujun.utils.Assert;
+import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.file.FileUtils;
+import com.mawujun.utils.string.StringUtils;
 
 /**
  * 生成的类用来快速的引用某个领域类的字段，这样既可以保证字段的准确度，又可以快速引用
  * @author mawujun email:16064988@qq.com qq:16064988
  *
  */
-public class GeneratorMT {
-	static Logger logger = LogManager.getLogger(FileUtils.class);
+public class GeneratorMTService {
+	static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 	
 	//private Class annotationClass=javax.persistence.Entity.class;
 	//private Class annotationTable=javax.persistence.Table.class;
 	
 	private static String targetPackage;
+	
 	/**
-	 * 在当前项目的源代码目录生成,M，T类
+	 * 从generator.properties目录汇总读取packageToScan
+	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
+	 */
+	public static void generateMT(String targetPackage) {
+		PropertiesUtils utils=PropertiesUtils.load("generator.properties");
+		String packageToScan=utils.getProperty("packageToScan");
+		Assert.notNull(packageToScan,"generator.properties中packageToScan不能为null");
+		generateMT(packageToScan,targetPackage);
+
+	}
+	/**
+	 * 在当前项目的源代码目录生成,M，T类,即在src/main/java目录下
 	 * @param packageName
-	 * @param targetPackage
+	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
 	 * @throws IOException
 	 */
-	public static void generateMT(String packageName,String targetPackage) {
-		generateMT(packageName,System.getProperty("user.dir")+File.separator+"src"+File.separator+"main"+File.separator+"java",targetPackage);
+	public static void generateMT(String packageToScan,String targetPackage) {
+		generateMT(packageToScan,System.getProperty("user.dir")+File.separator+"src"+File.separator+"main"+File.separator+"java",targetPackage);
 	}
 	/**
 	 * 搜索某个路径下面，标注了@Entity的类，并生成和android中的R类似的类，M
 	 * @author mawujun email:160649888@163.com qq:16064988
-	 * @param packageName 从哪些包中进行搜索
-	 * @param targetMDir 生成的目标地址 :E:\\eclipse\\workspace\\hujibang\\src\\main\\java
-	 * @param targetPackage com.mawujun.utils
+	 * @param packageToScan 从哪些包中进行搜索,支持以都还分隔的多个报名
+	 * @param targetMDir 生成的目标地址 :E:\\eclipse\\workspace\\hujibang\\src\\test\\java
+	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
 	 * @throws IOException
 	 */
-	public static void generateMT(String packageName,String targetMDir,String targetPackage) {
-		Assert.notNull(packageName);
-		Assert.notNull(targetMDir);
-		Assert.notNull(targetPackage);
-		GeneratorMT.targetPackage=targetPackage;
+	public static void generateMT(String packageToScan,String targetMDir,String targetPackage) {
+		Assert.notNull(packageToScan,"packageToScan不能为null");
+		Assert.notNull(targetMDir,"targetMDir不能为null");
+		Assert.notNull(targetPackage,"targetPackage不能为null");
+		GeneratorMTService.targetPackage=targetPackage;
 		try {
-			generateM(getClasssFromPackage(packageName),targetMDir);
+			Set<Class> classes=new HashSet<Class>();
+			for(String pkg:packageToScan.split(",")) {
+				classes.addAll(getClasssFromPackage(pkg));
+			}
+			generateM(classes,targetMDir);
 			
-			generateT(getClasssFromPackage(packageName),targetMDir);
+			generateT(classes,targetMDir);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -98,7 +117,7 @@ public class GeneratorMT {
         Enumeration<URL> dirs;  
       
         try {  
-            dirs = GeneratorMT.class.getClassLoader().getResources(packageDirName);  
+            dirs = GeneratorMTService.class.getClassLoader().getResources(packageDirName);  
             while (dirs.hasMoreElements()) {  
                 URL url = dirs.nextElement();  
       
@@ -155,7 +174,7 @@ public class GeneratorMT {
             } else {  
                 String className = file.getName().substring(0, file.getName().length() - 6);  
                 try {  
-                	Class clazz=GeneratorMT.class.getClassLoader().loadClass(packageName + "." + className);
+                	Class clazz=GeneratorMTService.class.getClassLoader().loadClass(packageName + "." + className);
                 	Annotation annoation=clazz.getAnnotation(Entity.class);
     				if(annoation!=null){
     					logger.info("============================找到实体类:"+clazz.getName());
@@ -165,11 +184,11 @@ public class GeneratorMT {
                    
                 } catch (Exception e) {  
                     //e.printStackTrace();  
-                    logger.error(e);  
+                    logger.error("",e);  
                     
                 }  catch (NoClassDefFoundError e) {  
                     //e.printStackTrace();  
-                    logger.error(e);  
+                    logger.error("",e);  
                     return;
                 }  
                 logger.info(packageName + "." + className);  
@@ -182,13 +201,13 @@ public class GeneratorMT {
      * @param entities
      * @throws IOException
      */
-    private static void generateM(List<Class> entities,String targetMDir) throws IOException{
-    	File dir=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar));
+    private static void generateM(Set<Class> entities,String targetMDir) throws IOException{
+    	File dir=new File(targetMDir+File.separatorChar+GeneratorMTService.targetPackage.replace('.', File.separatorChar));
     	if(!dir.exists()) {
     		dir.mkdirs();
     	}
     	//生成M
-    	File file=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
+    	File file=new File(targetMDir+File.separatorChar+GeneratorMTService.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"M.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
@@ -197,7 +216,7 @@ public class GeneratorMT {
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package "+GeneratorMT.targetPackage+";\n");
+    	fileWrite.append("package "+GeneratorMTService.targetPackage+";\n");
     	fileWrite.append("public final class M {\n");
     	
     	
@@ -309,18 +328,19 @@ public class GeneratorMT {
      * @param entities
      * @throws IOException
      */
-    private static void generateT(List<Class> entities,String targetMDir) throws IOException{
+    private static void generateT(Set<Class> entities,String targetMDir) throws IOException{
     	//生成T
-    	File file=new File(targetMDir+File.separatorChar+GeneratorMT.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"T.java");
+    	File file=new File(targetMDir+File.separatorChar+GeneratorMTService.targetPackage.replace('.', File.separatorChar)+File.separatorChar+"T.java");
     	//file.delete();
     	if(!file.exists()){
     		file.createNewFile();
     	}
     	FileWriter fileWrite=new FileWriter(file);
+    	logger.info("生成的文件地址:"+file.getAbsolutePath());
     	
     	    	
     	//StringBuilder builder=new StringBuilder();
-    	fileWrite.append("package "+GeneratorMT.targetPackage+";\n");
+    	fileWrite.append("package "+GeneratorMTService.targetPackage+";\n");
     	fileWrite.append("public final class T {\n");
     	
     	
@@ -339,6 +359,13 @@ public class GeneratorMT {
     		
     		//fileWrite.append("public static final class "+clazz.getSimpleName()+" {\n");
     		fileWrite.append("public static final class "+tablename+" {\n");
+    		
+    		 fileWrite.append("	 /**\n");
+         	 fileWrite.append("	 *  这个是表的名称\n");
+         	 fileWrite.append("	 */\n");
+         	 fileWrite.append("	public static final String tablename__=\""+tablename+"\";\n");
+         	 
+         	 
     		 //Field[]fields = clazz.getDeclaredFields();
     		 Set<String> existField=new HashSet<String>();
     		 
@@ -359,7 +386,7 @@ public class GeneratorMT {
                  	 for (Field embeddedIdfield : idClass_fiekds) { 
                  		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
                  		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
-             				 fileWrite.append("		public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+             				 fileWrite.append("		public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
              			 } else {
              				 fileWrite.append("		public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
              			 }
@@ -401,8 +428,8 @@ public class GeneratorMT {
                 	 List<Field> embeddedIdFields= getClassField(fieldClass);
                 	 for (Field embeddedIdfield : embeddedIdFields) { 
                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
-                		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
-            				 fileWrite.append("		public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+                		 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
+            				 fileWrite.append("		public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
             			 } else {
             				 fileWrite.append("		public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
             			 }
@@ -412,8 +439,8 @@ public class GeneratorMT {
                 	 
                 	 for (Field embeddedIdfield : embeddedIdFields) {
                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
-                		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
-            				 fileWrite.append("	public static final String "+embeddedIdfield.getName()+"=\""+embeddedIdfield.getName()+"\";\n");
+                		 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
+            				 fileWrite.append("	public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
             			 } else {
             				 fileWrite.append("	public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
             			 }
@@ -421,19 +448,19 @@ public class GeneratorMT {
             	 }  else if(isBaseType(field.getType()) || field.getType().isEnum()){
             			 
             			 Column columnAnnotation=(Column)field.getAnnotation(Column.class);
-            			 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
-            				 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
+            			 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
+            				 fileWrite.append("	public static final String "+StringUtils.camelToUnderline(field.getName())+"=\""+StringUtils.camelToUnderline(field.getName())+"\";\n");
             			 } else {
             				 fileWrite.append("	public static final String "+columnAnnotation.name()+"=\""+columnAnnotation.name()+"\";\n");
             			 }
                     	
                  } else if(!isOf(field.getType(),Map.class) && !isOf(field.getType(),Collection.class)){ 
-                    	 JoinColumn columnAnnotation=(JoinColumn)field.getAnnotation(Column.class);
-                    	 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
+                	 Column columnAnnotation=(Column)field.getAnnotation(Column.class);
+                    	 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
                     		 fileWrite.append("	/**\n");
-                        	 fileWrite.append("	* 访问外键的列名，用于sql的时候，返回的是"+field.getName()+"_id\n");
+                        	 fileWrite.append("	* 访问外键的列名，用于sql的时候，返回的是"+StringUtils.camelToUnderline(field.getName())+"_id\n");
                         	 fileWrite.append("	*/\n");
-                        	 fileWrite.append("	public static final String "+field.getName()+"_id=\""+field.getName()+"_id\";\n");
+                        	 fileWrite.append("	public static final String "+StringUtils.camelToUnderline(field.getName())+"_id=\""+StringUtils.camelToUnderline(field.getName())+"_id\";\n");
                     	 } else {
                     		 fileWrite.append("	/**\n");
                         	 fileWrite.append("	* 访问外键的列名，用于sql的时候，返回的是"+columnAnnotation.name()+"_id\n");

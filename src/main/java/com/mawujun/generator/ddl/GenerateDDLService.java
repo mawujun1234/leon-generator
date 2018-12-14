@@ -1,0 +1,291 @@
+package com.mawujun.generator.ddl;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.util.EnumSet;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.Entity;
+
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mawujun.utils.Assert;
+import com.mawujun.utils.PropertiesUtils;
+import com.mawujun.utils.file.FileUtils;
+
+public class GenerateDDLService {
+	private final static Logger logger = LoggerFactory.getLogger(GenerateDDLService.class);
+
+
+	/**
+	 * 通过在配置文件中配置packageToScan和outputFile
+	 */
+	public static void generateDLL() {
+		PropertiesUtils utils=PropertiesUtils.load("generator.properties");
+		String packageToScan=utils.getProperty("packageToScan");
+		String outputFile=utils.getProperty("ddl.outputFile");
+		Assert.notNull(packageToScan,"generator.properties中packageToScan不能为null");
+		Assert.notNull(packageToScan,"generator.properties中ddl.outputFile不能为null");
+		GenerateDDLService.generateDLL(packageToScan,outputFile);
+	}
+	/**
+	 * GenerateDDLService.generateDLL("test.mawujun","/db/script");
+	 * @param packageToScan 包名，以逗号分隔
+	 * @param outputFile 输出目录，相对于本项目根目录的位置
+	 */
+	public static void generateDLL(String packageToScan,String outputFile) {
+		File file=generateCfg(packageToScan);
+		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure(file).build();
+	    Metadata metadata = new MetadataSources(serviceRegistry).buildMetadata();
+	    
+	    SchemaExport export = new SchemaExport();
+	    String path=FileUtils.getProjectPath()+outputFile+File.separator+"create-drop.sql";
+	    File aaaa=new File(path);
+	    if(aaaa.exists()) {
+	    	aaaa.delete();
+	    }
+	    export.setOutputFile(path);
+	    //export.setOutputFile("E:\\my-workspace\\leon-repository\\src\\test\\java\\test\\mawujun\\jpa\\gnerator\\aaaa.sql");
+	    export.setDelimiter(";");
+	    export.setFormat(true);
+	    
+	    //export.drop(EnumSet.of(TargetType.SCRIPT), metadata);
+	    //export.createOnly(EnumSet.of(TargetType.SCRIPT),metadata);
+	    
+	    export.create(EnumSet.of(TargetType.SCRIPT), metadata);
+	    System.exit(0);
+	}
+
+	private static File generateCfg(String packageToScan) {
+		Set<Class> entitys = new HashSet<Class>();
+		try {
+			
+			for(String pkg:packageToScan.split(",")) {
+				entitys.addAll(getClassName(pkg));
+			}
+			
+		} catch (ClassNotFoundException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			logger.error("搜索实体类失败！", e1);
+		}
+		if(entitys==null || entitys.size()==0) {
+			throw new RuntimeException("没有找到实体类");
+		}
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		builder.append(
+				"<!DOCTYPE hibernate-configuration PUBLIC \"-//Hibernate/Hibernate Configuration DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd\">");
+		builder.append("<hibernate-configuration>");
+		builder.append("<session-factory>");
+		builder.append("<property name=\"hibernate.connection.driver_class\">com.mysql.jdbc.Driver</property>");
+		builder.append("<property name=\"hibernate.connection.url\">jdbc:mysql://172.16.80.252:3306/test</property>");
+		builder.append("<property name=\"hibernate.connection.username\">root</property>");
+		builder.append("<property name=\"hibernate.connection.password\">aikucun2018</property>");
+		builder.append("<property name=\"hibernate.dialect\">org.hibernate.dialect.MySQL57Dialect</property>");
+		builder.append("");
+		builder.append("");
+		builder.append("");
+		//builder.append("<mapping class=\"test.mawujun.model.City\" />");
+		for(Class clazz:entitys) {
+			builder.append("<mapping class=\""+clazz.getName()+"\" />");
+		}
+		builder.append("</session-factory>");
+		builder.append("</hibernate-configuration>");
+		builder.append("");
+		builder.append("");
+		builder.append("");
+		builder.append("");
+		builder.append("");
+
+		File file = new File(FileUtils.getTempDirectory() + File.separator + "hibernate.cfg.xml");
+		logger.info("cfg文件生成地址为:"+file.getAbsolutePath());
+		System.out.println(file.getAbsolutePath());
+		try {
+			FileUtils.writeStringToFile(file, builder.toString(), Charset.forName("UTF-8"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.error("生成文件失败！", e);
+
+		}
+		return file;
+
+	}
+
+	/**
+	 * 获取某包下所有类
+	 *
+	 * @param packageName  包名
+	 * @param childPackage 是否遍历子包
+	 * @return 类的完整名称
+	 * @throws ClassNotFoundException
+	 * @throws UnsupportedEncodingException
+	 */
+	private static Set<Class> getClassName(String packageName) throws IOException, ClassNotFoundException {
+		Set<Class> fileNames = new HashSet<Class>();
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		String packagePath = packageName.replace(".", File.separator);
+		Enumeration<URL> urls = loader.getResources(packagePath);
+		while (urls.hasMoreElements()) {
+			URL url = urls.nextElement();
+			if (url == null)
+				continue;
+			String type = url.getProtocol();
+			if (type.equals("file")) {
+				fileNames.addAll(getClassNameByFile(URLDecoder.decode(url.getPath(), "UTF-8"), true));
+			} else if (type.equals("jar")) {
+				// fileNames.addAll(getClassNameByJar(url.getPath()));
+			}
+		}
+		// fileNames.addAll(getClassNameByJars(((URLClassLoader) loader).getURLs(),
+		// packagePath, childPackage));
+		return fileNames;
+	}
+
+	/**
+	 * 从项目文件获取某包下所有类
+	 *
+	 * @param filePath     文件路径 类名集合
+	 * @param childPackage 是否遍历子包
+	 * @return 类的完整名称
+	 * @throws UnsupportedEncodingException
+	 * @throws ClassNotFoundException
+	 */
+	private static Set<Class> getClassNameByFile(String filePath, boolean childPackage)
+			throws UnsupportedEncodingException {
+		Set<Class> myClassName = new HashSet<Class>();
+		// filePath = UrlDecode.getURLDecode(filePath);
+		File file = new File(filePath);
+		File[] childFiles = file.listFiles();
+		if (childFiles == null)
+			return myClassName;
+		for (File childFile : childFiles) {
+			if (childFile.isDirectory()) {
+				if (childPackage) {
+					myClassName.addAll(getClassNameByFile(childFile.getPath(), childPackage));
+				}
+			} else {
+				String childFilePath = childFile.getPath();
+				// childFilePath = FileUtil.clearPath(childFilePath);
+				if (childFilePath.endsWith(".class")) {
+					if (childFilePath.indexOf(File.separator + "test-classes" + File.separator) != -1) {
+						childFilePath = childFilePath.substring(
+								childFilePath.indexOf(File.separator + "test-classes" + File.separator) + 14,
+								childFilePath.lastIndexOf("."));
+					} else {
+						childFilePath = childFilePath.substring(
+								childFilePath.indexOf(File.separator + "classes" + File.separator) + 9,
+								childFilePath.lastIndexOf("."));
+					}
+
+					childFilePath = childFilePath.replace(File.separator, ".");
+					Class clazz=null;
+					try {
+						clazz = Class.forName(childFilePath);
+						Annotation entity = clazz.getAnnotation(Entity.class);
+						if (entity != null) {
+							myClassName.add(clazz);
+						}
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						logger.error("找不到类",e);
+					}
+					
+
+				}
+			}
+		}
+		return myClassName;
+	}
+
+//    /**
+//     * 从jar获取某包下所有类
+//     *
+//     * @param jarPath      jar文件路径
+//     * @param childPackage 是否遍历子包
+//     * @return 类的完整名称
+//     * @throws UnsupportedEncodingException
+//     */
+//    private static Set<Class> getClassNameByJar(String jarPath, boolean childPackage) throws UnsupportedEncodingException {
+//    	Set<Class> myClassName = new HashSet<Class>();
+//        String[] jarInfo = jarPath.split("!");
+//        String jarFilePath = jarInfo[0].substring(jarInfo[0].indexOf("/"));
+//        jarFilePath = UrlDecode.getURLDecode(jarFilePath);
+//        String packagePath = jarInfo[1].substring(1);
+//        try {
+//            JarFile jarFile = new JarFile(jarFilePath);
+//            Enumeration<JarEntry> entrys = jarFile.entries();
+//            while (entrys.hasMoreElements()) {
+//                JarEntry jarEntry = entrys.nextElement();
+//                String entryName = jarEntry.getName();
+//                if (entryName.endsWith(".class")) {
+//                    if (childPackage) {
+//                        if (entryName.startsWith(packagePath)) {
+//                            entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+//                            myClassName.add(jarEntry.);
+//                        }
+//                    } else {
+//                        int index = entryName.lastIndexOf("/");
+//                        String myPackagePath;
+//                        if (index != -1) {
+//                            myPackagePath = entryName.substring(0, index);
+//                        } else {
+//                            myPackagePath = entryName;
+//                        }
+//                        if (myPackagePath.equals(packagePath)) {
+//                            entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+//                            myClassName.add(entryName);
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            //SystemLog.Log(LogType.systemInfo, e.getMessage(), e);
+//        }
+//        return myClassName;
+//    }
+//
+//    /**
+//     * 从所有jar中搜索该包，并获取该包下所有类
+//     *
+//     * @param urls         URL集合
+//     * @param packagePath  包路径
+//     * @param childPackage 是否遍历子包
+//     * @return 类的完整名称
+//     * @throws UnsupportedEncodingException
+//     */
+//    private static List<String> getClassNameByJars(URL[] urls, String packagePath, boolean childPackage) throws UnsupportedEncodingException {
+//        List<String> myClassName = new ArrayList<String>();
+//        if (urls != null) {
+//            for (int i = 0; i < urls.length; i++) {
+//                URL url = urls[i];
+//                String urlPath = url.getPath();
+//                // 不必搜索classes文件夹
+//                if (urlPath.endsWith("classes/")) {
+//                    continue;
+//                }
+//                String jarPath = urlPath + "!/" + packagePath;
+//                myClassName.addAll(getClassNameByJar(jarPath, childPackage));
+//            }
+//        }
+//        return myClassName;
+//    }
+
+}

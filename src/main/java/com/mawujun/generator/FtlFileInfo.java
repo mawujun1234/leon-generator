@@ -1,4 +1,4 @@
-package com.mawujun.generator.model;
+package com.mawujun.generator;
 
 public class FtlFileInfo {
 	private String name;

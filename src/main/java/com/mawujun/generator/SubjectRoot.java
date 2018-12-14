@@ -1,4 +1,4 @@
-package com.mawujun.generator.model;
+package com.mawujun.generator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import com.mawujun.generator.IDGenEnum;
 
 public class SubjectRoot {
 	//private String dbName;

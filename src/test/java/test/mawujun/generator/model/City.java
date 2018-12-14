@@ -16,7 +16,7 @@ import org.apache.ibatis.type.Alias;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mawujun.generator.model.ColDefinition;
+import com.mawujun.generator.ColDefine;
 
 /**
  * 所有字段不要设置默认值，因为动态更新的时候，会根据null进行判断是否更新
@@ -52,14 +52,14 @@ public class City {
 	 */
 	private static final long serialVersionUID = 3172844311839975513L;
 	@Column(length=30)
-	@ColDefinition(comment="名称注释",label="名称")
+	@ColDefine(comment="名称注释",label="名称")
 	private String name;
 	
-	@ColDefinition(label="年龄",defaultValue="1")
+	@ColDefine(label="年龄",defaultValue="1")
 	private Integer age;
 	
 	@Column(precision = 10,scale = 2)
-	@ColDefinition(defaultValue="1.1")
+	@ColDefine(defaultValue="1.1")
 	private Double price;
 	
 	@Temporal(TemporalType.TIMESTAMP)

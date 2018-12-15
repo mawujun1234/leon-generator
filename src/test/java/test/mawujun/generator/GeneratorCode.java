@@ -3,7 +3,7 @@ package test.mawujun.generator;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import com.mawujun.generator.GeneratorCodeService;
+import com.mawujun.generator.code.GeneratorCodeService;
 
 import freemarker.template.TemplateException;
 import test.mawujun.generator.model.City;

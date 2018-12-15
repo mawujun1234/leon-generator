@@ -16,7 +16,7 @@ import org.apache.ibatis.type.Alias;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mawujun.generator.ColDefine;
+import com.mawujun.generator.code.ColDefine;
 
 /**
  * 所有字段不要设置默认值，因为动态更新的时候，会根据null进行判断是否更新

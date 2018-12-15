@@ -1,4 +1,4 @@
-package com.mawujun.generator;
+package com.mawujun.generator.code;
 
 public enum IDGenEnum {
 	none("没有任何id设置"),

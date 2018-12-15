@@ -1,4 +1,4 @@
-package com.mawujun.generator;
+package com.mawujun.generator.code;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

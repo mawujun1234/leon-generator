@@ -1,4 +1,4 @@
-package com.mawujun.generator;
+package com.mawujun.generator.code;
 
 import java.io.BufferedWriter;
 import java.io.File;

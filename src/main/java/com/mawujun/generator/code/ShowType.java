@@ -1,4 +1,4 @@
-package com.mawujun.generator;
+package com.mawujun.generator.code;
 
 /**
  * 在前台展示的时候，使用什么类型

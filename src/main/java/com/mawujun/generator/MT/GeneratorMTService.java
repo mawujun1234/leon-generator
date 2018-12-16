@@ -21,6 +21,7 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 
@@ -240,8 +241,16 @@ public class GeneratorMTService {
                  //System.out.println(field.getName()+" "+field.getType());
                  //fileWrite.append("public static final "+field.getType().getName()+" "+field.getName()+"=\""+field.getName()+"\";\n");
                  if(isBaseType(field.getType()) || field.getType().isEnum()){
-                	 fileWrite.append(generateComment(field));
-                	 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
+//                	 Id id=field.getAnnotation(Id.class);
+//                	 if(id!=null) {
+//                		 IdClass idclass=(IdClass)clazz.getAnnotation(IdClass.class);
+//                		 
+//                	 } else {
+                	 //现在还有点问题，IdClass类中的注释读取不到
+                		 fileWrite.append(generateComment(field));
+                    	 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
+//                	 }
+                	 
                  } else if(!isOf(field.getType(),Map.class) && !isOf(field.getType(),Collection.class)){
                 	 Class<?> fieldClass=field.getType();
                 	 Annotation embeddedIdAnnotataion=field.getAnnotation(EmbeddedId.class);

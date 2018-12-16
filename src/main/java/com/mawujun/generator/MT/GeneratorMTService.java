@@ -17,18 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.LogManager;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mawujun.generator.code.Coldefine;
 import com.mawujun.utils.Assert;
 import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.file.FileUtils;
@@ -50,22 +49,24 @@ public class GeneratorMTService {
 	/**
 	 * 从generator.properties目录汇总读取packageToScan
 	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
+	 * @param isTest 生成放在test目录还是main目录
 	 */
-	public static void generateMT(String targetPackage) {
+	public static void generateMT(String targetPackage,Boolean isTest) {
 		PropertiesUtils utils=PropertiesUtils.load("generator.properties");
 		String packageToScan=utils.getProperty("packageToScan");
 		Assert.notNull(packageToScan,"generator.properties中packageToScan不能为null");
-		generateMT(packageToScan,targetPackage);
+		generateMT(packageToScan,targetPackage,isTest);
 
 	}
 	/**
 	 * 在当前项目的源代码目录生成,M，T类,即在src/main/java目录下
 	 * @param packageName
 	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
+	 * @param isTest 生成放在test目录还是main目录
 	 * @throws IOException
 	 */
-	public static void generateMT(String packageToScan,String targetPackage) {
-		generateMT(packageToScan,System.getProperty("user.dir")+File.separator+"src"+File.separator+"main"+File.separator+"java",targetPackage);
+	public static void generateMT(String packageToScan,String targetPackage,Boolean isTest) {
+		generateMT(packageToScan,System.getProperty("user.dir")+File.separator+"src"+File.separator+(isTest?"test":"main")+File.separator+"java",targetPackage);
 	}
 	/**
 	 * 搜索某个路径下面，标注了@Entity的类，并生成和android中的R类似的类，M
@@ -73,6 +74,7 @@ public class GeneratorMTService {
 	 * @param packageToScan 从哪些包中进行搜索,支持以都还分隔的多个报名
 	 * @param targetMDir 生成的目标地址 :E:\\eclipse\\workspace\\hujibang\\src\\test\\java
 	 * @param targetPackage 存放的目标包 例如：com.mawujun.utils
+	 * @param isTest 生成放在test目录还是main目录
 	 * @throws IOException
 	 */
 	public static void generateMT(String packageToScan,String targetMDir,String targetPackage) {
@@ -222,7 +224,7 @@ public class GeneratorMTService {
     	
     	for(Class clazz:entities){
     		logger.info("============================================="+clazz.getName());
-
+    		fileWrite.append(generateComment(clazz));
     		fileWrite.append("public static final class "+clazz.getSimpleName()+" {\n");
     		 //Field[]fields = clazz.getDeclaredFields();
     		 List<Field> fields= getClassField(clazz);
@@ -238,6 +240,7 @@ public class GeneratorMTService {
                  //System.out.println(field.getName()+" "+field.getType());
                  //fileWrite.append("public static final "+field.getType().getName()+" "+field.getName()+"=\""+field.getName()+"\";\n");
                  if(isBaseType(field.getType()) || field.getType().isEnum()){
+                	 fileWrite.append(generateComment(field));
                 	 fileWrite.append("	public static final String "+field.getName()+"=\""+field.getName()+"\";\n");
                  } else if(!isOf(field.getType(),Map.class) && !isOf(field.getType(),Collection.class)){
                 	 Class<?> fieldClass=field.getType();
@@ -245,12 +248,13 @@ public class GeneratorMTService {
                 	 //是复合主键的情况下
                 	 if(embeddedIdAnnotataion!=null){
                 		 fileWrite.append("	 /**\n");
-                    	 fileWrite.append("	 * 返回复合主键的组成，，以对象关联的方式:"+field.getName()+"\n");
+                    	 fileWrite.append("	 * 对复合主键的embeddedId的属性访问，返回值为id.id1,id.id2的形式\n");
                     	 fileWrite.append("	 */\n");
-                    	 fileWrite.append("	public static final class "+field.getName()+"Class {\n");
+                    	 fileWrite.append("	public static final class "+field.getName()+" {\n");
                     	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
                     	 List<Field> embeddedIdFields= getClassField(fieldClass);
                     	 for (Field embeddedIdfield : embeddedIdFields) { 
+                    		 fileWrite.append(generateComment(embeddedIdfield));
                     		 fileWrite.append("		public static final String "+embeddedIdfield.getName()+"=\""+field.getName()+"."+embeddedIdfield.getName()+"\";\n");
                     	 }
                     	 fileWrite.append("			\n");
@@ -280,6 +284,7 @@ public class GeneratorMTService {
                     	 List<Field> embeddedIdFields= getClassField(fieldClass);
                     	 for (Field embeddedIdfield : embeddedIdFields) { 
                     		 if(isBaseType(embeddedIdfield.getType()) || embeddedIdfield.getType().isEnum()) {
+                    			 fileWrite.append(generateComment(embeddedIdfield));
                     			 fileWrite.append("		public static final String "+embeddedIdfield.getName()+"=\""+field.getName()+"."+embeddedIdfield.getName()+"\";\n");
                     		 }
                     	 }
@@ -321,6 +326,54 @@ public class GeneratorMTService {
     	fileWrite.close();
     }
     
+    private static StringBuilder generateComment(Class clazz) {
+    	StringBuilder builder=new StringBuilder();
+    	builder.append("	/**\n");
+    	builder.append("	* 对应的类名是："+clazz.getName()+" \n");
+    	Table table = (Table) clazz.getAnnotation(Table.class);
+		if (table != null) {
+			// String[] aa=new String[2];
+			if (StringUtils.hasText(table.name())) {
+				builder.append("	* 对应的表名是："+table.name()+" \n");
+			}
+		}else {
+			builder.append("	* 对应的表名是："+clazz.getSimpleName()+" \n");
+		}
+		org.hibernate.annotations.Table table_hibernate = (org.hibernate.annotations.Table) clazz.getAnnotation(org.hibernate.annotations.Table.class);
+		if (table_hibernate != null) {
+			// String[] aa=new String[2];
+			if (StringUtils.hasText(table_hibernate.comment())) {
+				builder.append("	* 对应的表注释是："+table_hibernate.comment()+" \n");
+			}
+		}
+		
+    	
+    	builder.append("	* \n");
+    	builder.append("	*/\n");
+    	return builder;
+    	
+    }
+    private static StringBuilder generateComment(Field field) {
+    	StringBuilder builder=new StringBuilder();
+    	builder.append("	/**\n");
+    	Coldefine colDefine = (Coldefine) field.getAnnotation(Coldefine.class);
+		if (colDefine != null) {
+			// String[] aa=new String[2];
+			if (StringUtils.hasText(colDefine.comment())) {
+				builder.append("	*"+colDefine.comment()+" \n");
+			}
+			if (StringUtils.hasText(colDefine.defaultValue())) {
+				builder.append("	* 默认值是:"+colDefine.defaultValue()+" \n");
+			}
+
+		}
+		
+    	
+    	builder.append("	* \n");
+    	builder.append("	*/\n");
+    	return builder;
+    	
+    }
     
     /**
      * 产生表的字段名
@@ -351,13 +404,14 @@ public class GeneratorMTService {
     		String tablename=null;
     		if(annoation==null){
     			//throw new NullPointerException(clazz.getClass()+"的Table注解没有设置");
-    			tablename=clazz.getName();
+    			tablename=clazz.getSimpleName();
     		} else {
     			tablename=annoation.name();
     		}
     		logger.info("============================================="+annoation.name());
     		
     		//fileWrite.append("public static final class "+clazz.getSimpleName()+" {\n");
+    		fileWrite.append(generateComment(clazz));
     		fileWrite.append("public static final class "+tablename+" {\n");
     		
     		 fileWrite.append("	 /**\n");
@@ -384,6 +438,7 @@ public class GeneratorMTService {
                  	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
                  	 //List<Field> embeddedIdFields= getClassField(fieldClass);
                  	 for (Field embeddedIdfield : idClass_fiekds) { 
+                 		fileWrite.append(generateComment(embeddedIdfield));
                  		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
                  		 if(columnAnnotation==null || (columnAnnotation!=null && columnAnnotation.name().equals(""))){
              				 fileWrite.append("		public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
@@ -427,6 +482,7 @@ public class GeneratorMTService {
                 	 //Field[] embeddedIdFields = fieldClass.getDeclaredFields();
                 	 List<Field> embeddedIdFields= getClassField(fieldClass);
                 	 for (Field embeddedIdfield : embeddedIdFields) { 
+                		 fileWrite.append(generateComment(embeddedIdfield));
                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
                 		 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
             				 fileWrite.append("		public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
@@ -438,6 +494,7 @@ public class GeneratorMTService {
                 	 fileWrite.append("	}\n");
                 	 
                 	 for (Field embeddedIdfield : embeddedIdFields) {
+                		 fileWrite.append(generateComment(embeddedIdfield));
                 		 Column columnAnnotation=(Column)embeddedIdfield.getAnnotation(Column.class);
                 		 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
             				 fileWrite.append("	public static final String "+StringUtils.camelToUnderline(embeddedIdfield.getName())+"=\""+StringUtils.camelToUnderline(embeddedIdfield.getName())+"\";\n");
@@ -446,7 +503,7 @@ public class GeneratorMTService {
             			 }
                 	 }
             	 }  else if(isBaseType(field.getType()) || field.getType().isEnum()){
-            			 
+            		 	fileWrite.append(generateComment(field));
             			 Column columnAnnotation=(Column)field.getAnnotation(Column.class);
             			 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
             				 fileWrite.append("	public static final String "+StringUtils.camelToUnderline(field.getName())+"=\""+StringUtils.camelToUnderline(field.getName())+"\";\n");
@@ -455,6 +512,7 @@ public class GeneratorMTService {
             			 }
                     	
                  } else if(!isOf(field.getType(),Map.class) && !isOf(field.getType(),Collection.class)){ 
+                	 fileWrite.append(generateComment(field));
                 	 Column columnAnnotation=(Column)field.getAnnotation(Column.class);
                     	 if(columnAnnotation==null || (columnAnnotation!=null && !StringUtils.hasText(columnAnnotation.name()))){
                     		 fileWrite.append("	/**\n");

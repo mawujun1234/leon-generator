@@ -308,7 +308,7 @@ public class JavaEntityMetaDataService {
 				propertyColumn.setIsEnum(true);
 			}
 			
-			ColDefine colDefinition=field.getAnnotation(ColDefine.class);
+			Coldefine colDefinition=field.getAnnotation(Coldefine.class);
 			if(colDefinition!=null) {
 				if(StringUtils.hasText(colDefinition.defaultValue())) {
 					propertyColumn.setDefaultValue(colDefinition.defaultValue());

@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -17,73 +21,87 @@ import javax.persistence.Entity;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.mapping.Column;
+import org.hibernate.mapping.Component;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.PrimaryKey;
+import org.hibernate.mapping.Property;
+import org.hibernate.mapping.Selectable;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.mapping.Table;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.schema.TargetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mawujun.generator.code.Coldefine;
 import com.mawujun.utils.Assert;
 import com.mawujun.utils.PropertiesUtils;
+import com.mawujun.utils.ReflectUtils;
 import com.mawujun.utils.file.FileUtils;
+import com.mawujun.utils.string.StringUtils;
 
 public class GenerateDDLService {
 	private final static Logger logger = LoggerFactory.getLogger(GenerateDDLService.class);
-
 
 	/**
 	 * 通过在配置文件中配置packageToScan和outputFile
 	 */
 	public static void generateDLL() {
-		PropertiesUtils utils=PropertiesUtils.load("generator.properties");
-		String packageToScan=utils.getProperty("packageToScan");
-		String outputFile=utils.getProperty("ddl.outputFile");
-		Assert.notNull(packageToScan,"generator.properties中packageToScan不能为null");
-		Assert.notNull(packageToScan,"generator.properties中ddl.outputFile不能为null");
-		GenerateDDLService.generateDLL(packageToScan,outputFile);
+		PropertiesUtils utils = PropertiesUtils.load("generator.properties");
+		String packageToScan = utils.getProperty("packageToScan");
+		String outputFile = utils.getProperty("ddl.outputFile");
+		Assert.notNull(packageToScan, "generator.properties中packageToScan不能为null");
+		Assert.notNull(packageToScan, "generator.properties中ddl.outputFile不能为null");
+		GenerateDDLService.generateDLL(packageToScan, outputFile);
 	}
+
 	/**
 	 * GenerateDDLService.generateDLL("test.mawujun","/db/script");
+	 * 
 	 * @param packageToScan 包名，以逗号分隔
-	 * @param outputFile 输出目录，相对于本项目根目录的位置
+	 * @param outputFile    输出目录，相对于本项目根目录的位置
 	 */
-	public static void generateDLL(String packageToScan,String outputFile) {
-		File file=generateCfg(packageToScan);
+	public static void generateDLL(String packageToScan, String outputFile) {
+		File file = generateCfg(packageToScan);
 		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure(file).build();
-	    Metadata metadata = new MetadataSources(serviceRegistry).buildMetadata();
-	    
-	    SchemaExport export = new SchemaExport();
-	    String path=FileUtils.getProjectPath()+outputFile+File.separator+"create-drop.sql";
-	    File aaaa=new File(path);
-	    if(aaaa.exists()) {
-	    	aaaa.delete();
-	    }
-	    export.setOutputFile(path);
-	    //export.setOutputFile("E:\\my-workspace\\leon-repository\\src\\test\\java\\test\\mawujun\\jpa\\gnerator\\aaaa.sql");
-	    export.setDelimiter(";");
-	    export.setFormat(true);
-	    
-	    //export.drop(EnumSet.of(TargetType.SCRIPT), metadata);
-	    //export.createOnly(EnumSet.of(TargetType.SCRIPT),metadata);
-	    
-	    export.create(EnumSet.of(TargetType.SCRIPT), metadata);
-	    System.exit(0);
+		Metadata metadata = new MetadataSources(serviceRegistry).buildMetadata();
+
+		assignCommentAndDefault(metadata);
+
+		SchemaExport export = new SchemaExport();
+		String path = FileUtils.getProjectPath() + outputFile + File.separator + "create-drop.sql";
+		File aaaa = new File(path);
+		if (aaaa.exists()) {
+			aaaa.delete();
+		}
+		export.setOutputFile(path);
+		// export.setOutputFile("E:\\my-workspace\\leon-repository\\src\\test\\java\\test\\mawujun\\jpa\\gnerator\\aaaa.sql");
+		export.setDelimiter(";");
+		export.setFormat(true);
+
+		// export.drop(EnumSet.of(TargetType.SCRIPT), metadata);
+		// export.createOnly(EnumSet.of(TargetType.SCRIPT),metadata);
+
+		export.create(EnumSet.of(TargetType.SCRIPT), metadata);
+		System.exit(0);
 	}
 
 	private static File generateCfg(String packageToScan) {
 		Set<Class> entitys = new HashSet<Class>();
 		try {
-			
-			for(String pkg:packageToScan.split(",")) {
+
+			for (String pkg : packageToScan.split(",")) {
 				entitys.addAll(getClassName(pkg));
 			}
-			
+
 		} catch (ClassNotFoundException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			logger.error("搜索实体类失败！", e1);
 		}
-		if(entitys==null || entitys.size()==0) {
+		if (entitys == null || entitys.size() == 0) {
 			throw new RuntimeException("没有找到实体类");
 		}
 
@@ -93,17 +111,18 @@ public class GenerateDDLService {
 				"<!DOCTYPE hibernate-configuration PUBLIC \"-//Hibernate/Hibernate Configuration DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd\">");
 		builder.append("<hibernate-configuration>");
 		builder.append("<session-factory>");
-		builder.append("<property name=\"hibernate.connection.driver_class\">com.mysql.jdbc.Driver</property>");
-		builder.append("<property name=\"hibernate.connection.url\">jdbc:mysql://172.16.80.252:3306/test</property>");
-		builder.append("<property name=\"hibernate.connection.username\">root</property>");
-		builder.append("<property name=\"hibernate.connection.password\">aikucun2018</property>");
+//		builder.append("<property name=\"hibernate.connection.driver_class\">com.mysql.jdbc.Driver</property>");
+//		builder.append("<property name=\"hibernate.connection.url\">jdbc:mysql://172.16.80.252:3306/test</property>");
+//		builder.append("<property name=\"hibernate.connection.username\">root</property>");
+//		builder.append("<property name=\"hibernate.connection.password\">aikucun2018</property>");
 		builder.append("<property name=\"hibernate.dialect\">org.hibernate.dialect.MySQL57Dialect</property>");
+		builder.append(
+				"<property name=\"hibernate.physical_naming_strategy\">org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy</property>");
 		builder.append("");
 		builder.append("");
-		builder.append("");
-		//builder.append("<mapping class=\"test.mawujun.model.City\" />");
-		for(Class clazz:entitys) {
-			builder.append("<mapping class=\""+clazz.getName()+"\" />");
+		// builder.append("<mapping class=\"test.mawujun.model.City\" />");
+		for (Class clazz : entitys) {
+			builder.append("<mapping class=\"" + clazz.getName() + "\" />");
 		}
 		builder.append("</session-factory>");
 		builder.append("</hibernate-configuration>");
@@ -114,7 +133,7 @@ public class GenerateDDLService {
 		builder.append("");
 
 		File file = new File(FileUtils.getTempDirectory() + File.separator + "hibernate.cfg.xml");
-		logger.info("cfg文件生成地址为:"+file.getAbsolutePath());
+		logger.info("cfg文件生成地址为:" + file.getAbsolutePath());
 		System.out.println(file.getAbsolutePath());
 		try {
 			FileUtils.writeStringToFile(file, builder.toString(), Charset.forName("UTF-8"));
@@ -126,6 +145,112 @@ public class GenerateDDLService {
 		}
 		return file;
 
+	}
+
+	public static void assignCommentAndDefault(Metadata metadata) {
+//		Table table=metadata.getEntityBinding("test.mawujun.model.City").getIdentityTable();
+//		metadata.getEntityBinding("test.mawujun.model.City").getTable();
+//		metadata.getDatabase().getNamespaces().iterator().next().getTables().iterator().next().getColumn(1);
+
+		System.out.println(metadata.getEntityBinding("test.mawujun.model.City").getProperty("name").getValue());
+		Collection<PersistentClass> entity = metadata.getEntityBindings();
+		for (PersistentClass pc : entity) {
+			// Iterator
+			// property_terator=pc.getPropertyIterator();//pc.getProperty(propertyName)
+			// property_terator.next()
+			Table table = pc.getTable();
+			Iterator columns_terator = table.getColumnIterator();
+			while (columns_terator.hasNext()) {
+				Iterator<Property> property_terator = pc.getPropertyIterator();
+				final Column col = (Column) columns_terator.next();
+				System.out.println(col.getName());
+				System.out.println(col.getCanonicalName());
+				while (property_terator.hasNext()) {
+					Property prop = property_terator.next();
+					System.out.println("------" + prop.getName());
+					Iterator<Selectable> prop_col_itr = prop.getColumnIterator();// .getValue().getColumnIterator();
+					while (prop_col_itr.hasNext()) {
+						Selectable select = prop_col_itr.next();
+						if (select.getText().equals(col.getName())) {
+							// System.out.println(pc.getProperty("_identifierMapper"));
+							System.out.println(pc.getIdentifierProperty());
+							assignCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
+						}
+					}
+
+				}
+			}
+
+			assignCommentAndefault(table, pc);
+		}
+
+		System.out.println("=======================================================");
+	}
+
+	private static void assignCommentAndefault(Table table, PersistentClass pc) {
+		// 循环主键
+		PrimaryKey pk = table.getPrimaryKey();
+		List<Column> pk_list = pk.getColumns();
+		if (pc.getIdentifier() instanceof Component) {
+			Component kv = (Component) pc.getIdentifier();
+
+			for (Column col : pk_list) {
+				Iterator<Property> property_terator = kv.getPropertyIterator();
+				while (property_terator.hasNext()) {
+					Property prop = property_terator.next();
+					Iterator<Selectable> prop_col_itr = prop.getColumnIterator();
+
+					while (prop_col_itr.hasNext()) {
+						Selectable select = prop_col_itr.next();
+						if (select.getText().equals(col.getName())) {
+							// System.out.println(pc.getProperty("_identifierMapper"));
+							System.out.println(pc.getIdentifierProperty());
+							//简单粗暴的处理两种情况，并且具有优先级
+							assignCommentAndDefaultvalue(kv.getComponentClass(), prop.getName(), col);
+							assignCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
+						}
+					}
+				}
+			}
+
+		} else {
+			SimpleValue kv = (SimpleValue) pc.getIdentifier();
+			for (Column col : pk_list) {
+				// 简单粗暴的处理了,兼容id直接设置为驼峰形式和下划线形式
+				assignCommentAndDefaultvalue(pc.getMappedClass(), StringUtils.underlineToCamel(col.getName()), col);
+				assignCommentAndDefaultvalue(pc.getMappedClass(), col.getName(), col);
+			}
+		}
+
+		for (Column col : pk_list) {
+//			Iterator kv_terator=kv.getPropertyIterator();
+//			while ( kv_terator.hasNext() ) {
+//				Selectable select=(Selectable)kv_terator.next();
+//				if(select.getText().equals(col.getName())) {
+//					assignCommentAndDefaultvalue(kv.getComponentClass(),select.getText(),col);
+//				}
+//				
+//			}
+		}
+	}
+
+	private static void assignCommentAndDefaultvalue(Class clazz, String property, Column col) {
+		Field field = ReflectUtils.getField(clazz, property);
+		System.out.println(property + "......");
+		if (field == null) {
+			return;
+		}
+		Coldefine colDefine = (Coldefine) field.getAnnotation(Coldefine.class);
+		if (colDefine != null) {
+			// String[] aa=new String[2];
+			if (StringUtils.hasText(colDefine.comment())) {
+				col.setComment(colDefine.comment());
+			}
+			if (StringUtils.hasText(colDefine.defaultValue())) {
+				col.setDefaultValue(colDefine.defaultValue());
+			}
+
+		}
 	}
 
 	/**
@@ -195,7 +320,7 @@ public class GenerateDDLService {
 					}
 
 					childFilePath = childFilePath.replace(File.separator, ".");
-					Class clazz=null;
+					Class clazz = null;
 					try {
 						clazz = Class.forName(childFilePath);
 						Annotation entity = clazz.getAnnotation(Entity.class);
@@ -205,9 +330,8 @@ public class GenerateDDLService {
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						logger.error("找不到类",e);
+						logger.error("找不到类", e);
 					}
-					
 
 				}
 			}

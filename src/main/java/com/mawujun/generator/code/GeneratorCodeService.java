@@ -100,7 +100,7 @@ public class GeneratorCodeService {
 
 			for (Class cls : clazzs) {
 				/* 创建数据模型 */
-				SubjectRoot root = javaEntityMetaDataService.initClassProperty(cls);
+				EntityTable root = javaEntityMetaDataService.initClassProperty(cls);
 
 				for (FtlFileInfo ftlFile : ftl_file_manes) {
 					generatorFile(cls, ftlFile, outputdir);
@@ -323,7 +323,7 @@ public class GeneratorCodeService {
 	private static String generatorFileName(Class clazz, String ftl)
 			throws ClassNotFoundException, TemplateException, IOException {
 
-		SubjectRoot root = javaEntityMetaDataService.getClassProperty(clazz);
+		EntityTable root = javaEntityMetaDataService.getClassProperty(clazz);
 		if (basepackage != null) {
 			root.setBasepackage(basepackage);
 		}
@@ -364,7 +364,7 @@ public class GeneratorCodeService {
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		initConfiguration();
 		/* 创建数据模型 */
-		SubjectRoot root = javaEntityMetaDataService.initClassProperty(clazz);
+		EntityTable root = javaEntityMetaDataService.initClassProperty(clazz);
 //		if(this.getExtenConfig()!=null){
 //			root.setExtenConfig(this.getExtenConfig());
 //		}
@@ -434,7 +434,7 @@ public class GeneratorCodeService {
 		// templete.setEncoding("UTF-8");
 		// templete.setOutputEncoding("UTF-8");
 		/* 创建数据模型 */
-		SubjectRoot root = javaEntityMetaDataService.getClassProperty(clazz);
+		EntityTable root = javaEntityMetaDataService.getClassProperty(clazz);
 //		if(this.getExtenConfig()!=null){
 //			root.setExtenConfig(this.getExtenConfig());
 //		}

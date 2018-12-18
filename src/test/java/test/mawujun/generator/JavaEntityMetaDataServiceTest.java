@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.mawujun.generator.code.IDGenEnum;
 import com.mawujun.generator.code.JavaEntityMetaDataService;
 import com.mawujun.generator.code.PropertyColumn;
-import com.mawujun.generator.code.SubjectRoot;
+import com.mawujun.generator.code.EntityTable;
 
 import test.mawujun.generator.model.City;
 import test.mawujun.generator.model.City2;
@@ -29,11 +29,11 @@ public class JavaEntityMetaDataServiceTest {
 	@Test
 	public void test1 (){
 		//System.out.println(Sex.class.isEnum());
-		SubjectRoot root=javaEntityMetaDataService.getClassProperty(City.class);
-		Assert.assertEquals("t_city", root.getTableName());
-		Assert.assertEquals("City", root.getSimpleClassName());
+		EntityTable root=javaEntityMetaDataService.getClassProperty(City.class);
+		Assert.assertEquals("t_city", root.getEntityTableName());
+		Assert.assertEquals("City", root.getEntitySimpleClassName());
 		Assert.assertEquals("city", root.getUncapitalizeSimpleClassName());
-		Assert.assertEquals("test.mawujun.generator.model.City", root.getClassName());
+		Assert.assertEquals("test.mawujun.generator.model.City", root.getEntityClassName());
 		Assert.assertEquals("city", root.getAlias());
 		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		//Assert.assertEquals("", root.getIdType());
@@ -183,11 +183,11 @@ public class JavaEntityMetaDataServiceTest {
 	
 	@Test
 	public void test2 (){
-		SubjectRoot root=javaEntityMetaDataService.getClassProperty(City2.class);
-		Assert.assertEquals("t_city2", root.getTableName());
-		Assert.assertEquals("City2", root.getSimpleClassName());
+		EntityTable root=javaEntityMetaDataService.getClassProperty(City2.class);
+		Assert.assertEquals("t_city2", root.getEntityTableName());
+		Assert.assertEquals("City2", root.getEntitySimpleClassName());
 		Assert.assertEquals("city2", root.getUncapitalizeSimpleClassName());
-		Assert.assertEquals("test.mawujun.generator.model.City2", root.getClassName());
+		Assert.assertEquals("test.mawujun.generator.model.City2", root.getEntityClassName());
 		Assert.assertEquals("city2", root.getAlias());
 		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		//Assert.assertEquals("", root.getIdType());
@@ -315,11 +315,11 @@ public class JavaEntityMetaDataServiceTest {
 	@Test
 	public void test3 (){
 		//System.out.println(Sex.class.isEnum());
-		SubjectRoot root=javaEntityMetaDataService.getClassProperty(CoplxId1Entity.class);
-		Assert.assertEquals("t_coplxid1entity", root.getTableName());
-		Assert.assertEquals("CoplxId1Entity", root.getSimpleClassName());
+		EntityTable root=javaEntityMetaDataService.getClassProperty(CoplxId1Entity.class);
+		Assert.assertEquals("t_coplxid1entity", root.getEntityTableName());
+		Assert.assertEquals("CoplxId1Entity", root.getEntitySimpleClassName());
 		Assert.assertEquals("coplxId1Entity", root.getUncapitalizeSimpleClassName());
-		Assert.assertEquals("test.mawujun.generator.model.CoplxId1Entity", root.getClassName());
+		Assert.assertEquals("test.mawujun.generator.model.CoplxId1Entity", root.getEntityClassName());
 		Assert.assertEquals("coplxId1Entity", root.getAlias());
 		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		
@@ -371,11 +371,11 @@ public class JavaEntityMetaDataServiceTest {
 	@Test
 	public void test4 (){
 		//System.out.println(Sex.class.isEnum());
-		SubjectRoot root=javaEntityMetaDataService.getClassProperty(CoplxId2Entity.class);
-		Assert.assertEquals("t_coplxid2entity", root.getTableName());
-		Assert.assertEquals("CoplxId2Entity", root.getSimpleClassName());
+		EntityTable root=javaEntityMetaDataService.getClassProperty(CoplxId2Entity.class);
+		Assert.assertEquals("t_coplxid2entity", root.getEntityTableName());
+		Assert.assertEquals("CoplxId2Entity", root.getEntitySimpleClassName());
 		Assert.assertEquals("coplxId2Entity", root.getUncapitalizeSimpleClassName());
-		Assert.assertEquals("test.mawujun.generator.model.CoplxId2Entity", root.getClassName());
+		Assert.assertEquals("test.mawujun.generator.model.CoplxId2Entity", root.getEntityClassName());
 		Assert.assertEquals("coplxId2Entity", root.getAlias());
 		Assert.assertEquals("test.mawujun.generator", root.getBasepackage());
 		

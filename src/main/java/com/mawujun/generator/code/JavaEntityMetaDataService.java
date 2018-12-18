@@ -39,7 +39,7 @@ public class JavaEntityMetaDataService {
 	
 	//String id_name="id";//默认的id名称
 	
-	private static Map<String,SubjectRoot> cache=new HashMap<String,SubjectRoot>();
+	private static Map<String,EntityTable> cache=new HashMap<String,EntityTable>();
 	
 	public JavaEntityMetaDataService() {
 		
@@ -65,7 +65,7 @@ public class JavaEntityMetaDataService {
 		}
 		
 	}
-	public SubjectRoot getClassProperty(Class clazz){
+	public EntityTable getClassProperty(Class clazz){
 		if(cache.containsKey(clazz.getName())){
 			return cache.get(clazz.getName());
 		}
@@ -89,19 +89,19 @@ public class JavaEntityMetaDataService {
 		}
 		return null;
 	}
-	public SubjectRoot initClassProperty(Class clazz) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+	public EntityTable initClassProperty(Class clazz) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 		if(cache.containsKey(clazz.getName())){
 			return cache.get(clazz.getName());
 		}
-		SubjectRoot root=new SubjectRoot();
+		EntityTable root=new EntityTable();
 		//ll
 		Table tableAnnotation=(Table)clazz.getAnnotation(Table.class);
 		if(tableAnnotation!=null){
 			if(StringUtils.hasText(tableAnnotation.name())) {
-				root.setTableName(tableAnnotation.name());
+				root.setEntityTableName(tableAnnotation.name());
 			} else {
 				//throw new RuntimeException("@Table注解的表名需要设置");
-				root.setTableName(nameStrategy.classToTableName(clazz.getSimpleName()));
+				root.setEntityTableName(nameStrategy.classToTableName(clazz.getSimpleName()));
 			}
 			
 		} else {
@@ -121,17 +121,15 @@ public class JavaEntityMetaDataService {
 			//root.setAlias(nameStrategy.classToAlias(clazz.getSimpleName()));
 		}
 		
-		//root.setTableName(nameStrategy.classToTableName(clazz.getSimpleName().toLowerCase()));
-
-		root.setSimpleClassName(clazz.getSimpleName());
-		root.setClassName(clazz.getName());
+		root.setEntityClass(clazz);
+		//root.setSimpleClassName(clazz.getSimpleName());
+		//root.setClassName(clazz.getName());
 		
 		root.setBasepackage(clazz.getPackage().getName());
 		if(root.getBasepackage().lastIndexOf('.')!=-1) {
 			root.setBasepackage(root.getBasepackage().substring(0, root.getBasepackage().lastIndexOf('.')));
 		}
-		//root.setIdType("String");//默认是String
-		//root.setIdType(idClass.getSimpleName());
+
 		
 		
 		Field[] fields=ReflectUtils.getAllDeclaredFields(clazz);
@@ -194,6 +192,9 @@ public class JavaEntityMetaDataService {
 			}
 			propertyColumn.setClazz(field.getType());
 			
+			
+			
+			
 			//表示可嵌入类的组合主键
 			EmbeddedId embeddedId=field.getAnnotation(EmbeddedId.class);
 			if(embeddedId!=null) {
@@ -237,6 +238,13 @@ public class JavaEntityMetaDataService {
 					root.setIdClass(idClass.value());
 					root.setIdGenEnum(IDGenEnum.none);
 					root.setIdSequenceName(null);
+					
+					Field[] idClass_fields=ReflectUtils.getAllDeclaredFields(idClass.value());
+					for(Field idField:idClass_fields) {
+						assignComment(idField,propertyColumn);
+					}
+					
+					
 					
 				} else {
 					propertyColumn.setNullable(false);
@@ -285,6 +293,9 @@ public class JavaEntityMetaDataService {
 				}	
 			}
 			
+			//注释和默认值,一定要放在id判断的后面
+			assignComment(field,propertyColumn);
+			
 			
 			NotNull notNull=field.getAnnotation(NotNull.class);
 			if(notNull!=null){
@@ -308,19 +319,7 @@ public class JavaEntityMetaDataService {
 				propertyColumn.setIsEnum(true);
 			}
 			
-			Coldefine colDefinition=field.getAnnotation(Coldefine.class);
-			if(colDefinition!=null) {
-				if(StringUtils.hasText(colDefinition.defaultValue())) {
-					propertyColumn.setDefaultValue(colDefinition.defaultValue());
-				}
-				if(StringUtils.hasText(colDefinition.label())) {
-					propertyColumn.setLabel(colDefinition.label());
-					propertyColumn.setComment(colDefinition.label());
-				}
-				if(StringUtils.hasText(colDefinition.comment())) {
-					propertyColumn.setComment(colDefinition.comment());
-				}
-			}
+			
 			
 			
 			//propertyColumns.add(propertyColumn);
@@ -344,6 +343,22 @@ public class JavaEntityMetaDataService {
 		//root.setQueryProperties(queryProperties);
 		cache.put(clazz.getName(), root);
 		return root;
+	}
+	
+	private void assignComment(Field field,PropertyColumn propertyColumn) {
+		Coldefine colDefinition=field.getAnnotation(Coldefine.class);
+		if(colDefinition!=null) {
+			if(StringUtils.hasText(colDefinition.defaultValue())) {
+				propertyColumn.setDefaultValue(colDefinition.defaultValue());
+			}
+			if(StringUtils.hasText(colDefinition.label())) {
+				propertyColumn.setLabel(colDefinition.label());
+				propertyColumn.setComment(colDefinition.label());
+			}
+			if(StringUtils.hasText(colDefinition.comment())) {
+				propertyColumn.setComment(colDefinition.comment());
+			}
+		}
 	}
 	
 

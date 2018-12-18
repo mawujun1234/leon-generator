@@ -8,16 +8,18 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public class SubjectRoot {
+public class EntityTable {
 	//private String dbName;
-	private String tableName;//表名
-	private String simpleClassName;//类名，不带包名的
-	private String uncapitalizeSimpleClassName;
-	private String className;
+	private Class entityClass;
+	private String entityTableName;//表名
+	private String entitySimpleClassName;//类名，不带包名的
+	private String entitySimpleClassNameUncap;//首字母小写
+	private String entityClassName;//全限定类名
+	private String entityPackage;//实体类所在的包名
 	
 	private String alias;//别名，主要用于mybatis。如果指定胃，就使用指定胡，否则就使用类名，并且全部小写
 	
-	private String basepackage;//包名
+	private String basepackage;//基础包名。生成的类都放在这个基础包下面
 	//private String idType;
 	//private String idColumnName;
 	//private String idPropertyName;
@@ -40,9 +42,18 @@ public class SubjectRoot {
 	//存放需要产生查询条件的属性
 	List<PropertyColumn> queryProperties =new ArrayList<PropertyColumn>();
 	
+	public void setEntityClass(Class entityClass) {
+		this.entityClass = entityClass;
+		this.entitySimpleClassName = entityClass.getSimpleName();
+		this.entitySimpleClassNameUncap=StringUtils.uncapitalize(this.getEntitySimpleClassName());
+		this.entityClassName=entityClass.getName();
+		this.entityPackage=entityClass.getPackage().getName();
+		
+	}
+	
 	public void setSimpleClassName(String simpleClassName) {
-		this.simpleClassName = simpleClassName;
-		this.uncapitalizeSimpleClassName=StringUtils.uncapitalize(this.getSimpleClassName());;
+		this.entitySimpleClassName = simpleClassName;
+		this.entitySimpleClassNameUncap=StringUtils.uncapitalize(this.getEntitySimpleClassName());;
 	}
 	
 	public void setIdClass(Class<?> idClass) {
@@ -77,7 +88,7 @@ public class SubjectRoot {
 	}
 	
 	public String getUncapitalizeSimpleClassName() {
-		return this.uncapitalizeSimpleClassName;
+		return this.entitySimpleClassNameUncap;
 	}
 
 	public boolean getIsCompositeId() {
@@ -104,25 +115,13 @@ public class SubjectRoot {
 		this.idPropertys = idPropertys;
 	}
 
-	public String getClassName() {
-		return className;
-	}
 
-	public void setClassName(String className) {
-		this.className = className;
-	}
 
-	public String getTableName() {
-		return tableName;
-	}
+//	public void setClassName(String className) {
+//		this.className = className;
+//	}
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
 
-	public String getSimpleClassName() {
-		return simpleClassName;
-	}
 
 	public String getBasepackage() {
 		return basepackage;
@@ -182,9 +181,6 @@ public class SubjectRoot {
 		this.propertyColumns_map = propertyColumns_map;
 	}
 
-	public void setUncapitalizeSimpleClassName(String uncapitalizeSimpleClassName) {
-		this.uncapitalizeSimpleClassName = uncapitalizeSimpleClassName;
-	}
 
 	public String getIdSequenceName() {
 		return idSequenceName;
@@ -198,6 +194,52 @@ public class SubjectRoot {
 
 	public Class<?> getIdClass() {
 		return idClass;
+	}
+
+	public Class getEntityClass() {
+		return entityClass;
+	}
+
+	
+
+	public String getEntityPackage() {
+		return entityPackage;
+	}
+
+	public void setEntityPackage(String entityPackage) {
+		this.entityPackage = entityPackage;
+	}
+
+	public void setIdClassName(String idClassName) {
+		this.idClassName = idClassName;
+	}
+
+	public void setIdSimpleClassName(String idSimpleClassName) {
+		this.idSimpleClassName = idSimpleClassName;
+	}
+
+	public void setCompositeId(boolean isCompositeId) {
+		this.isCompositeId = isCompositeId;
+	}
+
+	public String getEntityClassName() {
+		return entityClassName;
+	}
+
+	public String getEntitySimpleClassName() {
+		return entitySimpleClassName;
+	}
+
+	public String getEntitySimpleClassNameUncap() {
+		return entitySimpleClassNameUncap;
+	}
+
+	public String getEntityTableName() {
+		return entityTableName;
+	}
+
+	public void setEntityTableName(String entityTableName) {
+		this.entityTableName = entityTableName;
 	}
 
 	

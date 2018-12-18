@@ -1,5 +1,5 @@
   
-<#assign simpleClassNameFirstLower = simpleClassName?uncap_first> 
+<#assign simpleClassNameFirstLower = entitySimpleClassName?uncap_first> 
 package ${basepackage}.controller;
 import java.util.List;
 
@@ -14,8 +14,8 @@ import com.mawujun.mvc.R;
 import com.mawujun.repository.utils.PageInfo;
 import com.mawujun.repository.utils.Params;
 
-import ${basepackage}.${simpleClassName};
-import ${basepackage}.service.${simpleClassName}Service;
+import ${entityClassName};
+import ${basepackage}.service.${entitySimpleClassName}Service;
 
 <#if isCompositeId==true>
 	import ${idSimpleClassName};
@@ -24,10 +24,10 @@ import ${basepackage}.service.${simpleClassName}Service;
 
 @Controller
 //@RequestMapping("/${simpleClassNameFirstLower}")
-public class ${simpleClassName}Controller {
+public class ${entitySimpleClassName}Controller {
 
 	@Resource
-	private ${simpleClassName}Service ${simpleClassNameFirstLower}Service;
+	private ${entitySimpleClassName}Service ${simpleClassNameFirstLower}Service;
 
 
 	/**
@@ -39,8 +39,8 @@ public class ${simpleClassName}Controller {
 	@RequestMapping("/${simpleClassNameFirstLower}/list")
 	@ResponseBody
 	public R list() {//括号里面写参数
-		Params params=Params.of();//Params.of().like(M.${simpleClassName}.name, "test");
-		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listByMap(params);
+		Params params=Params.of();//Params.of().like(M.${entitySimpleClassName}.name, "test");
+		List<${entitySimpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listByMap(params);
 		return R.ok(${simpleClassNameFirstLower}es);
 	}
 
@@ -55,8 +55,8 @@ public class ${simpleClassName}Controller {
 	@RequestMapping("/${simpleClassNameFirstLower}/listPage")
 	@ResponseBody
 	public R listPage(Integer start,Integer limit){
-		//PageInfo<${simpleClassName}> pageinfo=PageInfo.of(start,limit).eq(M.${simpleClassName}.name, "宁波");
-		PageInfo<${simpleClassName}> pageinfo=PageInfo.of(start,limit);
+		//PageInfo<${entitySimpleClassName}> pageinfo=PageInfo.of(start,limit).eq(M.${entitySimpleClassName}.name, "宁波");
+		PageInfo<${entitySimpleClassName}> pageinfo=PageInfo.of(start,limit);
 		${simpleClassNameFirstLower}Service.listPageByPageInfo(pageinfo);
 		return R.ok().data(pageinfo);
 	}
@@ -64,7 +64,7 @@ public class ${simpleClassName}Controller {
 	@RequestMapping("/${simpleClassNameFirstLower}/listAll")
 	@ResponseBody
 	public R listAll() {	
-		List<${simpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listAll();
+		List<${entitySimpleClassName}> ${simpleClassNameFirstLower}es=${simpleClassNameFirstLower}Service.listAll();
 		return R.ok().data(${simpleClassNameFirstLower}es);
 	}
 	
@@ -72,20 +72,20 @@ public class ${simpleClassName}Controller {
 	@RequestMapping("/${simpleClassNameFirstLower}/get")
 	@ResponseBody
 	public R get(${idClassName} id) {
-		${simpleClassName} ${simpleClassNameFirstLower}=${simpleClassNameFirstLower}Service.getById(id);
+		${entitySimpleClassName} ${simpleClassNameFirstLower}=${simpleClassNameFirstLower}Service.getById(id);
 		return R.ok().data(${simpleClassNameFirstLower});
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/create")
 	@ResponseBody
-	public R create(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+	public R create(@RequestBody ${entitySimpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.create(${simpleClassNameFirstLower});
 		return R.ok().data(${simpleClassNameFirstLower});
 	}
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/update")
 	@ResponseBody
-	public  R update(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+	public  R update(@RequestBody ${entitySimpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.update(${simpleClassNameFirstLower});
 		return R.ok().data(${simpleClassNameFirstLower});
 	}
@@ -106,7 +106,7 @@ public class ${simpleClassName}Controller {
 	
 	@RequestMapping("/${simpleClassNameFirstLower}/remove")
 	@ResponseBody
-	public ${simpleClassName} remove(@RequestBody ${simpleClassName} ${simpleClassNameFirstLower}) {
+	public ${entitySimpleClassName} remove(@RequestBody ${entitySimpleClassName} ${simpleClassNameFirstLower}) {
 		${simpleClassNameFirstLower}Service.remove(${simpleClassNameFirstLower});
 		return ${simpleClassNameFirstLower};
 	}

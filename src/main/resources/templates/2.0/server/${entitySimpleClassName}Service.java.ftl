@@ -1,4 +1,4 @@
-<#assign simpleClassNameFirstLower = simpleClassName?uncap_first> 
+<#assign simpleClassNameFirstLower = entitySimpleClassName?uncap_first> 
 package ${basepackage}.service;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,8 @@ import com.mawujun.service.BaseService;
 import lombok.extern.slf4j.Slf4j;
 
 
-import ${basepackage}.${simpleClassName};
-import ${basepackage}.repository.${simpleClassName}Repository;
+import ${entityClassName};
+import ${basepackage}.repository.${entitySimpleClassName}Repository;
 
 
 <#include "/java_copyright.include"/>
@@ -21,7 +21,7 @@ import ${basepackage}.repository.${simpleClassName}Repository;
 @Service
 @Transactional(propagation=Propagation.REQUIRED)
 @Slf4j
-public class ${simpleClassName}Service  extends BaseService<${simpleClassName}Repository, ${simpleClassName}>{
+public class ${entitySimpleClassName}Service  extends BaseService<${entitySimpleClassName}Repository, ${entitySimpleClassName}> implements I${entitySimpleClassName}Service{
 
 
 }

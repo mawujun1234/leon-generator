@@ -50,7 +50,7 @@ public class FreemarkerHelper {
 			throw new IllegalStateException("cannot process templateString:"+templateString+" cause:"+e,e);
 		}
 	}
-	public static String processTemplateString(String templateString,SubjectRoot model,Configuration conf) {
+	public static String processTemplateString(String templateString,EntityTable model,Configuration conf) {
 		StringWriter out = new StringWriter();
 		try {
 			Template template = new Template("templateString...",new StringReader(templateString),conf);

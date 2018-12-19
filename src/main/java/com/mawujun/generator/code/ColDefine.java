@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  */
 @Retention(RetentionPolicy.RUNTIME) 
-public @interface Coldefine {
+public @interface ColDefine {
 	/**
 	 * 注释
 	 * @return

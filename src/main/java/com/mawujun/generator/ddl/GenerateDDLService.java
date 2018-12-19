@@ -35,7 +35,8 @@ import org.hibernate.tool.schema.TargetType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mawujun.generator.code.Coldefine;
+import com.mawujun.generator.code.ColDefine;
+import com.mawujun.generator.code.TableDefine;
 import com.mawujun.utils.Assert;
 import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.ReflectUtils;
@@ -174,7 +175,7 @@ public class GenerateDDLService {
 						if (select.getText().equals(col.getName())) {
 							// System.out.println(pc.getProperty("_identifierMapper"));
 							System.out.println(pc.getIdentifierProperty());
-							assignCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
+							assignColCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
 						}
 					}
 
@@ -188,6 +189,7 @@ public class GenerateDDLService {
 	}
 
 	private static void assignCommentAndefault(Table table, PersistentClass pc) {
+		assignTableCommentAndFks(pc.getMappedClass(),table);
 		// 循环主键
 		PrimaryKey pk = table.getPrimaryKey();
 		List<Column> pk_list = pk.getColumns();
@@ -206,8 +208,8 @@ public class GenerateDDLService {
 							// System.out.println(pc.getProperty("_identifierMapper"));
 							System.out.println(pc.getIdentifierProperty());
 							//简单粗暴的处理两种情况，并且具有优先级
-							assignCommentAndDefaultvalue(kv.getComponentClass(), prop.getName(), col);
-							assignCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
+							assignColCommentAndDefaultvalue(kv.getComponentClass(), prop.getName(), col);
+							assignColCommentAndDefaultvalue(pc.getMappedClass(), prop.getName(), col);
 						}
 					}
 				}
@@ -217,8 +219,8 @@ public class GenerateDDLService {
 			SimpleValue kv = (SimpleValue) pc.getIdentifier();
 			for (Column col : pk_list) {
 				// 简单粗暴的处理了,兼容id直接设置为驼峰形式和下划线形式
-				assignCommentAndDefaultvalue(pc.getMappedClass(), StringUtils.underlineToCamel(col.getName()), col);
-				assignCommentAndDefaultvalue(pc.getMappedClass(), col.getName(), col);
+				assignColCommentAndDefaultvalue(pc.getMappedClass(), StringUtils.underlineToCamel(col.getName()), col);
+				assignColCommentAndDefaultvalue(pc.getMappedClass(), col.getName(), col);
 			}
 		}
 
@@ -233,14 +235,26 @@ public class GenerateDDLService {
 //			}
 		}
 	}
+	
+	private static void assignTableCommentAndFks(Class clazz,Table table) {
+		TableDefine tableDefine=(TableDefine)clazz.getAnnotation(TableDefine.class);
+		if(tableDefine==null) {
+			return;
+		}
+		if(StringUtils.hasText(tableDefine.comment())) {
+			table.setComment(tableDefine.comment());
+		}
+		
+		table.createForeignKey(keyName, keyColumns, referencedEntityName, keyDefinition, referencedColumns)
+	}
 
-	private static void assignCommentAndDefaultvalue(Class clazz, String property, Column col) {
+	private static void assignColCommentAndDefaultvalue(Class clazz, String property, Column col) {
 		Field field = ReflectUtils.getField(clazz, property);
 		System.out.println(property + "......");
 		if (field == null) {
 			return;
 		}
-		Coldefine colDefine = (Coldefine) field.getAnnotation(Coldefine.class);
+		ColDefine colDefine = (ColDefine) field.getAnnotation(ColDefine.class);
 		if (colDefine != null) {
 			// String[] aa=new String[2];
 			if (StringUtils.hasText(colDefine.comment())) {

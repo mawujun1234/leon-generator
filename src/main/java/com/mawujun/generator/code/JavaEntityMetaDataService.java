@@ -346,7 +346,7 @@ public class JavaEntityMetaDataService {
 	}
 	
 	private void assignComment(Field field,PropertyColumn propertyColumn) {
-		Coldefine colDefinition=field.getAnnotation(Coldefine.class);
+		ColDefine colDefinition=field.getAnnotation(ColDefine.class);
 		if(colDefinition!=null) {
 			if(StringUtils.hasText(colDefinition.defaultValue())) {
 				propertyColumn.setDefaultValue(colDefinition.defaultValue());

@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mawujun.generator.code.Coldefine;
+import com.mawujun.generator.code.ColDefine;
 import com.mawujun.utils.Assert;
 import com.mawujun.utils.PropertiesUtils;
 import com.mawujun.utils.file.FileUtils;
@@ -365,7 +365,7 @@ public class GeneratorMTService {
     private static StringBuilder generateComment(Field field) {
     	StringBuilder builder=new StringBuilder();
     	builder.append("	/**\n");
-    	Coldefine colDefine = (Coldefine) field.getAnnotation(Coldefine.class);
+    	ColDefine colDefine = (ColDefine) field.getAnnotation(ColDefine.class);
 		if (colDefine != null) {
 			// String[] aa=new String[2];
 			if (StringUtils.hasText(colDefine.comment())) {
@@ -424,9 +424,9 @@ public class GeneratorMTService {
     		fileWrite.append("public static final class "+tablename+" {\n");
     		
     		 fileWrite.append("	 /**\n");
-         	 fileWrite.append("	 *  这个是表的名称\n");
+         	 fileWrite.append("	 *  这个是表的名称,返回的是这个表的名称\n");
          	 fileWrite.append("	 */\n");
-         	 fileWrite.append("	public static final String tablename__=\""+tablename+"\";\n");
+         	 fileWrite.append("	public static final String tablename_=\""+tablename+"\";\n");
          	 
          	 
     		 //Field[]fields = clazz.getDeclaredFields();

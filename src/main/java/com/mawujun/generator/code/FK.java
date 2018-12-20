@@ -25,12 +25,12 @@ public @interface FK {
 	 * @return
 	 */
 	String[] columnNames();
-	/**
-	 * 表的名称,可以通过T.xxx.tablename引用
-	 * 必填，refEntity和refTable选一个填写就好
-	 * @return
-	 */
-	String refTable();
+//	/**
+//	 * 表的名称,可以通过T.xxx.tablename引用
+//	 * 必填，refEntity和refTable选一个填写就好
+//	 * @return
+//	 */
+//	String refTable();
 	/**
 	 * 列的名称，可以通过T.xxx.xxx引用
 	 * 必填，refColumn和refField选一个填写就好
@@ -53,12 +53,12 @@ public @interface FK {
 //	String field() default "";
 	
 	
-//	/**
-//	 * 外键指向的实体类,，也可以直接通过City.class
-//	 * 必填，refEntity和refTable选一个填写就好
-//	 * @return
-//	 */
-//	Class<?> refEntity()  default Void.class;
+	/**
+	 * 外键指向的实体类,，也可以直接通过City.class
+	 * 必填，refEntity和refTable选一个填写就好
+	 * @return
+	 */
+	Class<?> refEntity()  default Void.class;
 //	/**
 //	 * 外键的实体类对应的字段名称，可以通过M.xxx.yyy应用
 //	 * 必填，refColumn和refField选一个填写就好

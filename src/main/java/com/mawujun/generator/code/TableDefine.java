@@ -15,7 +15,7 @@ public @interface TableDefine {
     String comment() default "";
     /**
      * 定义表格的外键。
-     * @FK可以放在这里，也可以放在字段上。
+     * 
      * 如果同个类引用通个另外的类的列，那就变成复合外键
      * 唯一性约束，请再@Table注解上使用。
      * 索引，也请再@Table上定义

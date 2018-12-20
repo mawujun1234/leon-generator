@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Enumeration;
@@ -20,9 +21,11 @@ import javax.persistence.Entity;
 
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Component;
+import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.Property;
@@ -36,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mawujun.generator.code.ColDefine;
+import com.mawujun.generator.code.FK;
 import com.mawujun.generator.code.TableDefine;
 import com.mawujun.utils.Assert;
 import com.mawujun.utils.PropertiesUtils;
@@ -57,6 +61,8 @@ public class GenerateDDLService {
 		Assert.notNull(packageToScan, "generator.properties中ddl.outputFile不能为null");
 		GenerateDDLService.generateDLL(packageToScan, outputFile);
 	}
+	
+	private static Metadata metadata =null;
 
 	/**
 	 * GenerateDDLService.generateDLL("test.mawujun","/db/script");
@@ -67,7 +73,7 @@ public class GenerateDDLService {
 	public static void generateDLL(String packageToScan, String outputFile) {
 		File file = generateCfg(packageToScan);
 		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure(file).build();
-		Metadata metadata = new MetadataSources(serviceRegistry).buildMetadata();
+		metadata = new MetadataSources(serviceRegistry).buildMetadata();
 
 		assignCommentAndDefault(metadata);
 
@@ -84,6 +90,7 @@ public class GenerateDDLService {
 
 		// export.drop(EnumSet.of(TargetType.SCRIPT), metadata);
 		// export.createOnly(EnumSet.of(TargetType.SCRIPT),metadata);
+		
 
 		export.create(EnumSet.of(TargetType.SCRIPT), metadata);
 		System.exit(0);
@@ -244,8 +251,55 @@ public class GenerateDDLService {
 		if(StringUtils.hasText(tableDefine.comment())) {
 			table.setComment(tableDefine.comment());
 		}
+		FK[] fks=tableDefine.fks();
+		if(fks==null || fks.length==0) {
+			return;
+		}
 		
-		table.createForeignKey(keyName, keyColumns, referencedEntityName, keyDefinition, referencedColumns)
+		for(FK fk:fks) {
+			List<Column> keyColumns=new ArrayList<Column>();
+			for(String name:fk.columnNames()) {
+				Identifier iden=Identifier.toIdentifier(name);
+				if(table.getColumn(iden)==null) {
+					throw new RuntimeException("当前指定的列不存在");
+				}
+				keyColumns.add(table.getColumn(iden));
+			}
+			
+			List<Column> referencedColumns=new ArrayList<Column>();
+			String referencedEntityName=fk.refEntity().getName();
+			Table referencedTable=metadata.getEntityBinding(referencedEntityName).getTable();
+			
+			for(String name:fk.refColumnNames()) {
+				Identifier iden=Identifier.toIdentifier(name);
+				if(referencedTable.getColumn(iden)==null) {
+					throw new RuntimeException("被引用的表不存在列:"+name);
+				}
+				referencedColumns.add(referencedTable.getColumn(iden));
+				
+//				List<Column> pks=table.getPrimaryKey().getColumns();
+//				for(Column pk:pks) {
+//					if(pk.getCanonicalName().equals(iden.getCanonicalName())) {
+//						referencedColumns.add(pk);
+//					}
+//				}
+				
+			}
+			
+			if(referencedColumns==null || referencedColumns.size()==0) {
+				throw new RuntimeException("没有找到关联表的主键列或唯一列");
+			}
+			
+			//keyDefinition应该是和colDefinition一样，自己定义的东西
+			ForeignKey foreignKey=table.createForeignKey("fk_"+StringUtils.randomStr(8), 
+					keyColumns, 
+					referencedEntityName, null,  
+					referencedColumns);
+			foreignKey.setReferencedEntityName(referencedEntityName);
+			foreignKey.setReferencedTable(referencedTable);
+		}
+		
+		
 	}
 
 	private static void assignColCommentAndDefaultvalue(Class clazz, String property, Column col) {

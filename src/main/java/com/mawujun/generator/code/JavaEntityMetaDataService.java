@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -46,7 +45,7 @@ public class JavaEntityMetaDataService {
 		try {
 			PropertiesUtils aa = PropertiesUtils.load("generator.properties");
 			String className=aa.getProperty("nameStrategy");
-			if(com.mawujun.utils.StringUtils.hasText(className)) {
+			if(StringUtils.hasText(className)) {
 				Class clazz=Class.forName(className);
 				nameStrategy=(NameStrategy) clazz.newInstance();
 			}
